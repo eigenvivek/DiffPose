@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "diffpose"
+  site-url: "https://vivekg.dev/DiffPose"
+  description: "Patient-specific intraoperative 2D/3D registration via differentiable rendering"
+  repo-branch: main
+  repo-url: "https://github.com/eigenvivek/DiffPose"
