@@ -1,0 +1,22 @@
+name: preop
+channels:
+  - conda-forge
+  - pytorch
+  - pytorch3d
+  - nvidia
+dependencies:
+  - pip
+  - pytorch
+  - torchvision
+  - pytorch3d
+  - pip:
+    - diffdrr
+    - h5py
+    - scikit-image
+    - seaborn
+    - transformers
+    - timm
+    - torchmetrics
+    - tqdm
+    - beartype
+    - jaxtyping
