@@ -1,0 +1,19 @@
+website:
+  sidebar:
+    contents:
+      - index.ipynb
+      - section: api
+        contents:
+          - api/00_deepfluoro.ipynb
+          - api/01_ljubljana.ipynb
+          - api/02_calibration.ipynb
+          - api/03_registration.ipynb
+          - api/04_metrics.ipynb
+          - api/05_visualization.ipynb
+          - api/06_jacobians.ipynb
+      - section: experiments
+        contents:
+          - experiments/00_3D_visualization.ipynb
+          - experiments/01_pose_recovery.ipynb
+          - experiments/02_loss_landscapes.ipynb
+          - experiments/render.html

@@ -10,6 +10,8 @@ MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Code style:
 black](https://img.shields.io/badge/Code%20style-black-black.svg)](https://github.com/psf/black)
 
+<img src="https://github.com/eigenvivek/DiffPose/blob/main/notebooks/test_time_optimization.gif"/>
+
 ## Install
 
 ``` zsh
