@@ -81,60 +81,100 @@ def get_random_offset(batch_size: int, device) -> RigidTransform:
 
 # %% ../notebooks/api/03_registration.ipynb 12
 from diffdrr.detector import make_xrays
+from diffdrr.drr import DRR
 from diffdrr.siddon import siddon_raycast
-from diffdrr.utils import convert
-from pytorch3d.transforms import se3_exp_map, se3_log_map
+
+from .calibration import RigidTransform, convert
 
 
 class SparseRegistration(torch.nn.Module):
-    def __init__(self, drr, pose, features=None):
+    def __init__(
+        self,
+        drr: DRR,
+        pose: RigidTransform,
+        parameterization: str,
+        convention: str = None,
+        features=None,  # Used to compute biased estimate of mNCC
+        n_patches: int = None,  # If n_patches is None, render the whole image
+        patch_size: int = 13,
+    ):
         super().__init__()
         self.drr = drr
-        log = se3_log_map(pose.get_matrix())
-        self.translation = torch.nn.Parameter(log[..., :3])
-        self.rotation = torch.nn.Parameter(log[..., 3:])
 
-        # Crop 10 pixels off the edge (i.e., use patch radius < 10 pixels)
+        # Parse the input pose
+        rotation, translation = convert(
+            pose,
+            input_parameterization="se3_exp_map",
+            output_parameterization=parameterization,
+            output_convention=convention,
+        )
+        self.parameterization = parameterization
+        self.convention = convention
+        self.rotation = torch.nn.Parameter(rotation)
+        self.translation = torch.nn.Parameter(translation)
+
+        # Crop pixels off the edge such that pixels don't fall outside the image
+        self.n_patches = n_patches
+        self.patch_size = patch_size
+        self.patch_radius = self.patch_size // 2 + 1
         self.height = self.drr.detector.height
-        self.f_height = self.height - 2 * 10
+        self.f_height = self.height - 2 * self.patch_radius
 
-        if features is None:  # Sample all pixels equally
+        # Define the distribution over patch centers
+        if features is None:
             features = torch.ones(
                 self.height, self.height, device=self.rotation.device
             ) / (self.height**2)
-        self.m = torch.distributions.categorical.Categorical(
-            probs=features.squeeze()[10:-10, 10:-10].flatten()
+        self.patch_centers = torch.distributions.categorical.Categorical(
+            probs=features.squeeze()[
+                self.patch_radius : -self.patch_radius,
+                self.patch_radius : -self.patch_radius,
+            ].flatten()
         )
 
-    def forward(self, n_patches, patch_size):
-        """If n_patches is None, render the whole image."""
-
+    def forward(self, n_patches=None, patch_size=None):
+        # Parse initial density
         if not hasattr(self.drr, "density"):
             self.drr.set_bone_attenuation_multiplier(
                 self.drr.bone_attenuation_multiplier
             )
 
-        # Make the mask
-        if n_patches is not None:
-            mask = torch.zeros(
-                n_patches,
+        if n_patches is not None or patch_size is not None:
+            self.n_patches = n_patches
+            self.patch_size = patch_size
+
+        # Make the mask for sparse rendering
+        if self.n_patches is None:
+            mask = torch.ones(
+                1,
                 self.height,
                 self.height,
                 dtype=torch.bool,
                 device=self.rotation.device,
             )
-            radius = patch_size // 2
-            idxs = self.m.sample(sample_shape=torch.Size([n_patches]))
-            idxs, jdxs = idxs // self.f_height + 10, idxs % self.f_height + 10
+        else:
+            mask = torch.zeros(
+                self.n_patches,
+                self.height,
+                self.height,
+                dtype=torch.bool,
+                device=self.rotation.device,
+            )
+            radius = self.patch_size // 2
+            idxs = self.patch_centers.sample(sample_shape=torch.Size([self.n_patches]))
+            idxs, jdxs = (
+                idxs // self.f_height + self.patch_radius,
+                idxs % self.f_height + self.patch_radius,
+            )
 
             idx = torch.arange(-radius, radius + 1, device=self.rotation.device)
-            patches = torch.cartesian_prod(idx, idx).expand(n_patches, -1, -1)
+            patches = torch.cartesian_prod(idx, idx).expand(self.n_patches, -1, -1)
             patches = patches + torch.stack([idxs, jdxs], dim=-1).unsqueeze(1)
             patches = torch.concat(
                 [
-                    torch.arange(n_patches, device=self.rotation.device)
+                    torch.arange(self.n_patches, device=self.rotation.device)
                     .unsqueeze(-1)
-                    .expand(-1, patch_size**2)
+                    .expand(-1, self.patch_size**2)
                     .unsqueeze(-1),
                     patches,
                 ],
@@ -145,22 +185,14 @@ class SparseRegistration(torch.nn.Module):
                 patches[..., 1],
                 patches[..., 2],
             ] = True
-        else:
-            mask = torch.ones(
-                1,
-                self.height,
-                self.height,
-                dtype=torch.bool,
-                device=self.rotation.device,
-            )
 
         # Get the source and target
-        T = se3_exp_map(
-            torch.concat([self.translation, self.rotation], dim=1)
-        ).transpose(-1, -2)
-        R = T[..., :3, :3]
-        t = T[..., :3, 3]
-        pose = RigidTransform(R, t, "matrix")
+        pose = convert(
+            [self.rotation, self.translation],
+            input_parameterization=self.parameterization,
+            output_parameterization="se3_exp_map",
+            input_convention=self.convention,
+        )
         source, target = make_xrays(
             pose,
             self.drr.detector.source,
@@ -170,21 +202,18 @@ class SparseRegistration(torch.nn.Module):
         # Render the sparse image
         target = target[mask.any(dim=0).view(1, -1)]
         img = siddon_raycast(source, target, self.drr.density, self.drr.spacing)
+        if self.n_patches is None:
+            img = self.drr.reshape_transform(img, batch_size=len(self.rotation))
         return img, mask
 
-    def get_rotation(self):
-        T = se3_exp_map(
-            torch.concat([self.translation, self.rotation], dim=1)
-        ).transpose(-1, -2)
-        R = T[..., :3, :3]
-        return convert(R, "matrix", "euler_angles", output_convention="ZYX")
-
-    def get_translation(self):
-        T = se3_exp_map(
-            torch.concat([self.translation, self.rotation], dim=1)
-        ).transpose(-1, -2)
-        t = T[..., :3, 3]
-        return t
+    def get_current_pose(self):
+        return convert(
+            [self.rotation, self.translation],
+            input_parameterization=self.parameterization,
+            output_parameterization="euler_angles",
+            input_convention=self.convention,
+            output_convention="ZYX",
+        )
 
 # %% ../notebooks/api/03_registration.ipynb 14
 def preprocess(x, eps=1e-4):
