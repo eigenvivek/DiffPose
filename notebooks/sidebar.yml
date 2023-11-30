@@ -16,4 +16,5 @@ website:
           - experiments/00_3D_visualization.ipynb
           - experiments/01_pose_recovery.ipynb
           - experiments/02_loss_landscapes.ipynb
+          - experiments/03_sparse_rendering.ipynb
           - experiments/render.html
