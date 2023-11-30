@@ -87,7 +87,9 @@ class GeodesicSO3(torch.nn.Module):
         r2 = pose_2.get_rotation()
         rdiff = r1 @ r2.transpose(-1, -2)
         trace = torch.einsum("...ii", rdiff)
-        return ((trace - 1) / 2).arccos()
+        arg = (trace - 1) / 2
+        arg = torch.clip(arg, -1, 1)  # Ensure argument is within domain
+        return arg.arccos()
 
 
 class GeodesicTranslation(torch.nn.Module):
