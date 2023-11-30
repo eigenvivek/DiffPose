@@ -14,7 +14,7 @@ dependencies:
     - h5py
     - scikit-image
     - seaborn
-    - transformers
+    - pytorch-transformers
     - timm
     - torchmetrics
     - tqdm
