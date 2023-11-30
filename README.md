@@ -71,7 +71,25 @@ rm data/ljubljana.zip
 
 - `VerSe` ([**Sekuboyina et al., 2020**](https://pubs.rsna.org/doi/10.1148/ryai.2020190074)) ... -->
 
-## Development (optional)
+## Experiments
+
+To run the experiments in `DiffPose`, run the following scripts (ensure
+you have downloaded the data first):
+
+``` zsh
+cd experiments
+mkdir checkpoints
+srun python diffpose_train.py
+srun python diffpose_register.py
+```
+
+The training and test-time optimization scripts use SLURM to run on all
+subjects in parallel:
+
+- `diffpose_train.py` is configured to run across six A6000 GPUs
+- `diffpose_register.py` is configured to run across six 2080 Ti GPUs
+
+## Development
 
 `DiffPose` package, docs, and CI are all built using
 [`nbdev`](https://nbdev.fast.ai/). To get set up with`nbdev`, install
@@ -89,7 +107,9 @@ important ones are
 
 ``` zsh
 nbdev_preview  # Render docs locally and inspect in browser
-nbdev_prepare  # NECESSARY BEFORE PUSHING: builds package, tests notebooks, and builds docs in one step
+nbdev_clean    # NECESSARY BEFORE PUSHING
+nbdev_test     # tests notebooks
+nbdev_export   # builds package and builds docs
 ```
 
 For more details, follow this [in-depth
