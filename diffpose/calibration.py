@@ -17,6 +17,8 @@ from pytorch3d.transforms import Transform3d
 
 @beartype
 class RigidTransform(Transform3d):
+    """Wrapper of pytorch3d.transforms.Transform3d with extra functionalities."""
+
     @jaxtyped
     def __init__(
         self,
@@ -27,7 +29,6 @@ class RigidTransform(Transform3d):
         device=None,
         dtype=torch.float32,
     ):
-        """Wrapper of pytorch3d.transforms.Transform3d with extra functionalities."""
         if device is None and (R.device == t.device):
             device = R.device
 
