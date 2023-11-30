@@ -27,6 +27,7 @@ class RigidTransform(Transform3d):
         device=None,
         dtype=torch.float32,
     ):
+        """Wrapper of pytorch3d.transforms.Transform3d with extra functionalities."""
         if device is None and (R.device == t.device):
             device = R.device
 
