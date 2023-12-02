@@ -72,21 +72,33 @@ rm data/ljubljana.zip
 
 ## Experiments
 
-To run the experiments in `DiffPose`, run the following scripts (ensure
+To run the experiments in `DiffPose`, run the following script (ensure
 you have downloaded the data first):
 
 ``` zsh
-cd experiments
-mkdir checkpoints
-srun python diffpose_train.py
-srun python diffpose_register.py
+cd experiments/deepfluoro
+srun python train.py     # Pretrain pose regression CNN on synthetic X-rays
+srun python register.py  # Run test-time optimization with the best network per subject
+
+cd experiments/ljubljana
+srun python train.py
+srun python register.py
 ```
 
 The training and test-time optimization scripts use SLURM to run on all
 subjects in parallel:
 
-- `diffpose_train.py` is configured to run across six A6000 GPUs
-- `diffpose_register.py` is configured to run across six 2080 Ti GPUs
+- `experiments/deepfluoro/train.py` is configured to run across six
+  A6000 GPUs
+- `experiments/deepfluoro/register.py` is configured to run across six
+  2080 Ti GPUs
+- `experiments/ljubljana/train.py` is configured to run across twenty
+  2080 Ti GPUs
+- `experiments/ljubljana/register.py` is configured to run on twenty
+  2080 Ti GPUs
+
+The GPU configurations can be changed at the end of each script using
+[`submitit`](https://github.com/facebookincubator/submitit).
 
 ## Development
 
@@ -96,8 +108,8 @@ the following
 
 ``` zsh
 conda install jupyterlab nbdev -c fastai -c conda-forge 
-nbdev_install_quarto  # To build docs
-nbdev_install_hooks  # Make notebooks git-friendly
+nbdev_install_quarto      # To build docs
+nbdev_install_hooks       # Make notebooks git-friendly
 pip install -e  ".[dev]"  # Install the development verison of DiffPose
 ```
 
