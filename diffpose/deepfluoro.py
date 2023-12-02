@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['DeepFluoroDataset', 'convert_deepfluoro_to_diffdrr', 'convert_diffdrr_to_deepfluoro', 'Evaluator', 'preprocess',
-           'Transforms']
+           'get_random_offset', 'Transforms']
 
 # %% ../notebooks/api/00_deepfluoro.ipynb 3
 from pathlib import Path
@@ -305,7 +305,28 @@ def preprocess(img, size=None, initial_energy=torch.tensor(65487.0)):
     img = (img - img.min()) / (img.max() - img.min())
     return img
 
-# %% ../notebooks/api/00_deepfluoro.ipynb 30
+# %% ../notebooks/api/00_deepfluoro.ipynb 26
+from beartype import beartype
+from pytorch3d.transforms import se3_exp_map
+
+from .calibration import RigidTransform
+
+
+@beartype
+def get_random_offset(batch_size: int, device) -> RigidTransform:
+    t1 = torch.distributions.Normal(10, 70).sample((batch_size,))
+    t2 = torch.distributions.Normal(250, 90).sample((batch_size,))
+    t3 = torch.distributions.Normal(5, 50).sample((batch_size,))
+    r1 = torch.distributions.Normal(0, 0.2).sample((batch_size,))
+    r2 = torch.distributions.Normal(0, 0.1).sample((batch_size,))
+    r3 = torch.distributions.Normal(0, 0.25).sample((batch_size,))
+    logmap = torch.stack([t1, t2, t3, r1, r2, r3], dim=1).to(device)
+    T = se3_exp_map(logmap)
+    R = T[..., :3, :3].transpose(-1, -2)
+    t = T[..., 3, :3]
+    return RigidTransform(R, t)
+
+# %% ../notebooks/api/00_deepfluoro.ipynb 32
 from torchvision.transforms import Compose, Lambda, Normalize, Resize
 
 
