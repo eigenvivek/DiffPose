@@ -13,8 +13,9 @@ from beartype import beartype
 from diffdrr.utils import convert as convert_so3
 from jaxtyping import Float, jaxtyped
 from pytorch3d.transforms import Transform3d
+from pytorchse3.se3 import se3_exp_map, se3_log_map
 
-
+# %% ../notebooks/api/02_calibration.ipynb 7
 @beartype
 class RigidTransform(Transform3d):
     """Wrapper of pytorch3d.transforms.Transform3d with extra functionalities."""
@@ -36,7 +37,7 @@ class RigidTransform(Transform3d):
         if R.dim() == 2 and t.dim() == 1:
             R = R.unsqueeze(0)
             t = t.unsqueeze(0)
-        assert (batch_size := len(R)) == len(t)
+        assert (batch_size := len(R)) == len(t), "R and t need same batch size"
 
         matrix = torch.zeros(batch_size, 4, 4, device=device, dtype=dtype)
         matrix[..., :3, :3] = R.transpose(-1, -2)
@@ -72,10 +73,10 @@ class RigidTransform(Transform3d):
         t = self.get_matrix()[..., 3, :3].clone()
         return RigidTransform(R, t, device=self.device, dtype=self.dtype)
 
-# %% ../notebooks/api/02_calibration.ipynb 7
-from pytorch3d.transforms import se3_exp_map
+    def get_se3_log(self):
+        return se3_log_map(self.get_matrix().transpose(-1, -2))
 
-
+# %% ../notebooks/api/02_calibration.ipynb 8
 def convert(
     transform,
     input_parameterization,
@@ -87,7 +88,7 @@ def convert(
 
     # Convert any input parameterization to a RigidTransform
     if input_parameterization == "se3_log_map":
-        transform = torch.concat((transform[1], transform[0]), axis=-1)
+        transform = torch.concat([*transform], axis=-1)
         matrix = se3_exp_map(transform)
         transform = RigidTransform(
             R=matrix[..., :3, :3].transpose(-1, -2),
@@ -110,14 +111,14 @@ def convert(
         return transform
     elif output_parameterization == "se3_log_map":
         se3_log = transform.get_se3_log()
-        return se3_log[..., 3:], se3_log[..., :3]
+        return se3_log[..., :3], se3_log[..., 3:]
     else:
         return (
             transform.get_rotation(output_parameterization, output_convention),
             transform.get_translation(),
         )
 
-# %% ../notebooks/api/02_calibration.ipynb 9
+# %% ../notebooks/api/02_calibration.ipynb 10
 @beartype
 @jaxtyped
 def perspective_projection(

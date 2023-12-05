@@ -15,6 +15,7 @@ dependencies:
     - scikit-image
     - seaborn
     - pytorch-transformers
+    - pytorchse3
     - timm
     - torchmetrics
     - tqdm

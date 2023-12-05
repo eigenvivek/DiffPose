@@ -70,7 +70,6 @@ N_ANGULAR_COMPONENTS = {
 from diffdrr.detector import make_xrays
 from diffdrr.drr import DRR
 from diffdrr.siddon import siddon_raycast
-from pytorch3d.transforms import se3_exp_map
 
 from .calibration import RigidTransform
 
@@ -106,13 +105,15 @@ class SparseRegistration(torch.nn.Module):
         self.patch_size = patch_size
         self.patch_radius = self.patch_size // 2 + 1
         self.height = self.drr.detector.height
+        self.width = self.drr.detector.width
         self.f_height = self.height - 2 * self.patch_radius
+        self.f_width = self.width - 2 * self.patch_radius
 
         # Define the distribution over patch centers
         if features is None:
             features = torch.ones(
-                self.height, self.height, device=self.rotation.device
-            ) / (self.height**2)
+                self.height, self.width, device=self.rotation.device
+            ) / (self.height * self.width)
         self.patch_centers = torch.distributions.categorical.Categorical(
             probs=features.squeeze()[
                 self.patch_radius : -self.patch_radius,
@@ -136,7 +137,7 @@ class SparseRegistration(torch.nn.Module):
             mask = torch.ones(
                 1,
                 self.height,
-                self.height,
+                self.width,
                 dtype=torch.bool,
                 device=self.rotation.device,
             )
@@ -144,7 +145,7 @@ class SparseRegistration(torch.nn.Module):
             mask = torch.zeros(
                 self.n_patches,
                 self.height,
-                self.height,
+                self.width,
                 dtype=torch.bool,
                 device=self.rotation.device,
             )
@@ -152,7 +153,7 @@ class SparseRegistration(torch.nn.Module):
             idxs = self.patch_centers.sample(sample_shape=torch.Size([self.n_patches]))
             idxs, jdxs = (
                 idxs // self.f_height + self.patch_radius,
-                idxs % self.f_height + self.patch_radius,
+                idxs % self.f_width + self.patch_radius,
             )
 
             idx = torch.arange(-radius, radius + 1, device=self.rotation.device)

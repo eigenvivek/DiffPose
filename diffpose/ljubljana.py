@@ -114,9 +114,9 @@ class LjubljanaDataset(torch.utils.data.Dataset):
             isocenter_pose,
         )
 
-# %% ../notebooks/api/01_ljubljana.ipynb 10
+# %% ../notebooks/api/01_ljubljana.ipynb 7
 from beartype import beartype
-from pytorch3d.transforms import se3_exp_map
+from pytorchse3.se3 import se3_exp_map
 
 from .calibration import RigidTransform
 
@@ -138,40 +138,45 @@ def get_random_offset(view, batch_size: int, device) -> RigidTransform:
         r2 = torch.distributions.Normal(0, 0.05).sample((batch_size,))
         r3 = torch.distributions.Normal(1.55, 0.05).sample((batch_size,))
     else:
-        raise ValueError(f"view must be 'ap' or 'lat', not {view}")
+        raise ValueError(f"view must be 'ap' or 'lat', not '{view}'")
 
-    logmap = torch.stack([t1, t2, t3, r1, r2, r3], dim=1).to(device)
+    logmap = torch.stack([r1, r2, r3, t1, t2, t3], dim=1).to(device)
     T = se3_exp_map(logmap)
     R = T[..., :3, :3].transpose(-1, -2)
     t = T[..., 3, :3]
     return RigidTransform(R, t)
 
-# %% ../notebooks/api/01_ljubljana.ipynb 12
+# %% ../notebooks/api/01_ljubljana.ipynb 9
 from torch.nn.functional import pad
 
 from .calibration import perspective_projection
 
 
 class Evaluator:
-    def __init__(self, specimen, idx):
-        # Save matrices to device
-        self.translate = specimen.translate
-        self.flip_xz = specimen.flip_xz
-        self.intrinsic = specimen.intrinsic
-        self.intrinsic_inv = specimen.intrinsic.inverse()
+    def __init__(self, subject, idx):
+        # Get transformation matrices of the camera
+        (_, _, focal_len, _, _, _, _, _, _, _, gt_pose, _) = subject[idx]
+        self.focal_len = focal_len
+        intrinsic = subject.f[f"subject{idx + 1:02d}/proj-{subject.view}/intrinsic"][:]
+        self.intrinsic = torch.from_numpy(intrinsic)
+        self.translate = RigidTransform(
+            torch.eye(3),
+            torch.tensor([-self.focal_len / 2, 0.0, 0.0]),
+        )
+        self.flip_xz = subject.flip_xz
 
-        # Get gt fiducial locations
-        self.specimen = specimen
-        self.fiducials = specimen.fiducials
-        gt_pose = specimen[idx][1]
+        # Get the ground truth projections
+        self.points = torch.from_numpy(
+            subject.f[f"subject{idx + 1:02d}/points"][:]
+        ).unsqueeze(0)
         self.true_projected_fiducials = self.project(gt_pose)
 
     def project(self, pose):
-        extrinsic = convert_diffdrr_to_deepfluoro(self.specimen, pose)
-        x = perspective_projection(extrinsic, self.intrinsic, self.fiducials)
-        x = -self.specimen.focal_len * torch.einsum(
+        extrinsic = pose.inverse().compose(self.translate).compose(self.flip_xz)
+        x = perspective_projection(extrinsic, self.intrinsic, self.points)
+        x = self.focal_len * torch.einsum(
             "ij, bnj -> bni",
-            self.intrinsic_inv,
+            self.intrinsic.inverse(),
             pad(x, (0, 1), value=1),  # Convert to homogenous coordinates
         )
         extrinsic = (
@@ -189,7 +194,7 @@ class Evaluator:
         registration_error *= 0.154  # Pixel spacing is 0.154 mm / pixel isotropic
         return registration_error
 
-# %% ../notebooks/api/01_ljubljana.ipynb 15
+# %% ../notebooks/api/01_ljubljana.ipynb 12
 from torchvision.transforms import Compose, Lambda, Normalize, Resize
 
 

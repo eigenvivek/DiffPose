@@ -65,11 +65,18 @@ import torch
 from beartype import beartype
 from diffdrr.utils import convert
 from jaxtyping import Float, jaxtyped
-from pytorch3d.transforms import standardize_quaternion
+from pytorch3d.transforms import (
+    so3_rotation_angle,
+    so3_relative_angle,
+    standardize_quaternion,
+)
 
 from .calibration import RigidTransform
 
 # %% ../notebooks/api/04_metrics.ipynb 10
+from pytorchse3.so3 import so3_log_map
+
+
 class GeodesicSO3(torch.nn.Module):
     """Calculate the angular distance between two rotations in SO(3)."""
 
@@ -86,10 +93,7 @@ class GeodesicSO3(torch.nn.Module):
         r1 = pose_1.get_rotation()
         r2 = pose_2.get_rotation()
         rdiff = r1 @ r2.transpose(-1, -2)
-        trace = torch.einsum("...ii", rdiff)
-        arg = (trace - 1) / 2
-        arg = torch.clip(arg, -1, 1)  # Ensure argument is within domain
-        return arg.arccos()
+        return so3_log_map(rdiff).norm(dim=-1)
 
 
 class GeodesicTranslation(torch.nn.Module):
@@ -113,9 +117,8 @@ class GeodesicTranslation(torch.nn.Module):
 class GeodesicSE3(torch.nn.Module):
     """Calculate the distance between transforms in the log-space of SE(3)."""
 
-    def __init__(self, eps=1e-4):
+    def __init__(self):
         super().__init__()
-        self.eps = eps
 
     @beartype
     @jaxtyped
@@ -124,7 +127,7 @@ class GeodesicSE3(torch.nn.Module):
         pose_1: RigidTransform,
         pose_2: RigidTransform,
     ) -> Float[torch.Tensor, "b"]:
-        return pose_2.compose(pose_1.inverse()).get_se3_log(eps=self.eps).norm(dim=1)
+        return pose_2.compose(pose_1.inverse()).get_se3_log().norm(dim=1)
 
 # %% ../notebooks/api/04_metrics.ipynb 12
 @beartype

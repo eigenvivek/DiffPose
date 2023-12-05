@@ -307,7 +307,7 @@ def preprocess(img, size=None, initial_energy=torch.tensor(65487.0)):
 
 # %% ../notebooks/api/00_deepfluoro.ipynb 26
 from beartype import beartype
-from pytorch3d.transforms import se3_exp_map
+from pytorchse3.se3 import se3_exp_map
 
 from .calibration import RigidTransform
 
@@ -320,7 +320,7 @@ def get_random_offset(batch_size: int, device) -> RigidTransform:
     r1 = torch.distributions.Normal(0, 0.2).sample((batch_size,))
     r2 = torch.distributions.Normal(0, 0.1).sample((batch_size,))
     r3 = torch.distributions.Normal(0, 0.25).sample((batch_size,))
-    logmap = torch.stack([t1, t2, t3, r1, r2, r3], dim=1).to(device)
+    logmap = torch.stack([r1, r2, r3, t1, t2, t3], dim=1).to(device)
     T = se3_exp_map(logmap)
     R = T[..., :3, :3].transpose(-1, -2)
     t = T[..., 3, :3]
