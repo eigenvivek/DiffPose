@@ -91,8 +91,8 @@ def convert(
         transform = torch.concat([*transform], axis=-1)
         matrix = se3_exp_map(transform)
         transform = RigidTransform(
-            R=matrix[..., :3, :3].transpose(-1, -2),
-            t=matrix[..., 3, :3],
+            R=matrix[..., :3, :3],
+            t=matrix[..., :3, 3],
             device=matrix.device,
             dtype=matrix.dtype,
         )
@@ -111,7 +111,9 @@ def convert(
         return transform
     elif output_parameterization == "se3_log_map":
         se3_log = transform.get_se3_log()
-        return se3_log[..., :3], se3_log[..., 3:]
+        log_R_vee = se3_log[..., :3]
+        log_t_vee = se3_log[..., 3:]
+        return log_R_vee, log_t_vee
     else:
         return (
             transform.get_rotation(output_parameterization, output_convention),
