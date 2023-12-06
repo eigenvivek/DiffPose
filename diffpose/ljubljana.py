@@ -116,35 +116,36 @@ class LjubljanaDataset(torch.utils.data.Dataset):
 
 # %% ../notebooks/api/01_ljubljana.ipynb 7
 from beartype import beartype
-from pytorchse3.se3 import se3_exp_map
 
-from .calibration import RigidTransform
+from .calibration import RigidTransform, convert
 
 
 @beartype
 def get_random_offset(view, batch_size: int, device) -> RigidTransform:
     if view == "ap":
-        t1 = torch.distributions.Normal(-10, 20).sample((batch_size,))
+        t1 = torch.distributions.Normal(-6, 30).sample((batch_size,))
         t2 = torch.distributions.Normal(175, 30).sample((batch_size,))
-        t3 = torch.distributions.Normal(-5, 15).sample((batch_size,))
-        r1 = torch.distributions.Normal(0, 0.05).sample((batch_size,))
-        r2 = torch.distributions.Normal(0, 0.05).sample((batch_size,))
+        t3 = torch.distributions.Normal(-5, 30).sample((batch_size,))
+        r1 = torch.distributions.Normal(0, 0.1).sample((batch_size,))
+        r2 = torch.distributions.Normal(0, 0.1).sample((batch_size,))
         r3 = torch.distributions.Normal(-0.15, 0.25).sample((batch_size,))
     elif view == "lat":
-        t1 = torch.distributions.Normal(75, 15).sample((batch_size,))
-        t2 = torch.distributions.Normal(-80, 20).sample((batch_size,))
-        t3 = torch.distributions.Normal(-5, 10).sample((batch_size,))
-        r1 = torch.distributions.Normal(0, 0.05).sample((batch_size,))
+        t1 = torch.distributions.Normal(75, 30).sample((batch_size,))
+        t2 = torch.distributions.Normal(-80, 30).sample((batch_size,))
+        t3 = torch.distributions.Normal(-5, 30).sample((batch_size,))
+        r1 = torch.distributions.Normal(0.0, 0.1).sample((batch_size,))
         r2 = torch.distributions.Normal(0, 0.05).sample((batch_size,))
         r3 = torch.distributions.Normal(1.55, 0.05).sample((batch_size,))
     else:
         raise ValueError(f"view must be 'ap' or 'lat', not '{view}'")
 
-    logmap = torch.stack([r1, r2, r3, t1, t2, t3], dim=1).to(device)
-    T = se3_exp_map(logmap)
-    R = T[..., :3, :3].transpose(-1, -2)
-    t = T[..., 3, :3]
-    return RigidTransform(R, t)
+    log_R_vee = torch.stack([r1, r2, r3], dim=1).to(device)
+    log_t_vee = torch.stack([t1, t2, t3], dim=1).to(device)
+    return convert(
+        [log_R_vee, log_t_vee],
+        "se3_log_map",
+        "se3_exp_map",
+    )
 
 # %% ../notebooks/api/01_ljubljana.ipynb 9
 from torch.nn.functional import pad
