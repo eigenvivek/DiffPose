@@ -1,4 +1,7 @@
+checkpoints/
 data/
+logs/
+runs/
 
 _docs/
 _proc/

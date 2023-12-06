@@ -72,14 +72,18 @@ rm data/ljubljana.zip
 
 ## Experiments
 
-To run the experiments in `DiffPose`, run the following script (ensure
-you have downloaded the data first):
+To run the experiments in `DiffPose`, run the following scripts (ensure
+you’ve downloaded the data first):
 
 ``` zsh
+# DeepFluoro dataset
 cd experiments/deepfluoro
 srun python train.py     # Pretrain pose regression CNN on synthetic X-rays
 srun python register.py  # Run test-time optimization with the best network per subject
+```
 
+``` zsh
+# Ljubljana dataset
 cd experiments/ljubljana
 srun python train.py
 srun python register.py
@@ -121,6 +125,7 @@ nbdev_preview  # Render docs locally and inspect in browser
 nbdev_clean    # NECESSARY BEFORE PUSHING
 nbdev_test     # tests notebooks
 nbdev_export   # builds package and builds docs
+nbdev_readme   # Render the readme
 ```
 
 For more details, follow this [in-depth
