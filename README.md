@@ -16,19 +16,20 @@ black](https://img.shields.io/badge/Code%20style-black-black.svg)](https://githu
 
 ## Install
 
-This will install the dependencies listed under `requirements` in
-[`settings.ini`](https://github.com/eigenvivek/DiffPose/blob/9a522b04a739334b9ddb89f3a606ab78d80bc6f6/settings.ini#L42).
+To install `DiffPose` and the requirements in
+[`environment.yml`](https://github.com/eigenvivek/DiffPose/blob/main/environment.yml),
+run:
 
 ``` zsh
-pip install DiffPose
+pip install diffpose
 ```
 
-The source code for the differentiable X-ray renderer is available at
-[`DiffDRR`](https://github.com/eigenvivek/DiffDRR).
+The differentiable X-ray renderer that powers the backend of `DiffPose`
+is available at [`DiffDRR`](https://github.com/eigenvivek/DiffDRR).
 
 ## Datasets
 
-We evaluate `DiffPose` networks on the following datasets.
+We evaluate `DiffPose` networks on the following open-source datasets:
 
 | **Dataset**                                                                | **Anatomy**        | **\# of Subjects** | **\# of 2D Images** | **CTs** | **X-rays** | Fiducials |
 |----------------------------------------------------------------------------|--------------------|:------------------:|:-------------------:|:-------:|:----------:|:---------:|
