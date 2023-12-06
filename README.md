@@ -16,12 +16,15 @@ black](https://img.shields.io/badge/Code%20style-black-black.svg)](https://githu
 
 ## Install
 
+This will install the dependencies listed under `requirements` in
+[`settings.ini`](https://github.com/eigenvivek/DiffPose/blob/9a522b04a739334b9ddb89f3a606ab78d80bc6f6/settings.ini#L42).
+
 ``` zsh
 pip install DiffPose
 ```
 
-This will install the dependencies listed under `requirements` in
-[`settings.ini`](https://github.com/eigenvivek/DiffPose/blob/9a522b04a739334b9ddb89f3a606ab78d80bc6f6/settings.ini#L42).
+The source code for the differentiable X-ray renderer is available at
+[`DiffDRR`](https://github.com/eigenvivek/DiffDRR).
 
 ## Datasets
 
