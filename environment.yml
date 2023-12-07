@@ -10,7 +10,7 @@ dependencies:
   - torchvision
   - pytorch3d
   - pip:
-    - diffdrr
+    - diffdrr>=0.3.8
     - h5py
     - scikit-image
     - seaborn
