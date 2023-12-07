@@ -11,7 +11,7 @@ MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Code style:
 black](https://img.shields.io/badge/Code%20style-black-black.svg)](https://github.com/psf/black)
 
-![](notebooks/test_time_optimization.gif)
+![](experiments/test_time_optimization.gif)
 
 ## Install
 
