@@ -117,8 +117,8 @@ class Registration:
         self.geodesics = GeodesicSE3()
         self.doublegeo = DoubleGeodesic(drr.detector.sdr)
         self.criterion = MultiscaleNormalizedCrossCorrelation2d(
-            [None, 13, 9],  # None corresponds to global
-            [0.45, 0.45, 0.1],
+            [None, 13],  # None corresponds to global
+            [0.5, 0.5],
         )
         self.target_registration_error = evaluator
 

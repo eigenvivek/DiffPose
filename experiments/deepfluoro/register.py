@@ -38,7 +38,7 @@ class Registration:
 
         self.geodesics = GeodesicSE3()
         self.doublegeo = DoubleGeodesic(sdr=self.specimen.focal_len / 2)
-        self.criterion = MultiscaleNormalizedCrossCorrelation2d([None, 9], [0.5, 0.5])
+        self.criterion = MultiscaleNormalizedCrossCorrelation2d([None, 13], [0.5, 0.5])
         self.transforms = Transforms(self.drr.detector.height)
         self.parameterization = parameterization
         self.convention = convention
