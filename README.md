@@ -5,6 +5,8 @@
 > Intraoperative 2D/3D registration via differentiable X-ray rendering
 
 [![CI](https://github.com/eigenvivek/DiffPose/actions/workflows/test.yaml/badge.svg)](https://github.com/eigenvivek/DiffPose/actions/workflows/test.yaml)
+[![Paper
+shield](https://img.shields.io/badge/arXiv-2312.06358-red.svg)](https://arxiv.org/abs/2312.06358)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Docs](https://github.com/eigenvivek/DiffPose/actions/workflows/deploy.yaml/badge.svg)](https://vivekg.dev/DiffPose)
@@ -139,12 +141,21 @@ If you find `DiffPose` or
 [`DiffDRR`](https://github.com/eigenvivek/DiffDRR) useful in your work,
 please cite the appropriate papers:
 
-    @inproceedings{gopalakrishnanDiffDRR2022,
-        author    = {Gopalakrishnan, Vivek and Golland, Polina},
-        title     = {Fast Auto-Differentiable Digitally Reconstructed Radiographs for Solving Inverse Problems in Intraoperative Imaging},
-        year      = {2022},
-        booktitle = {Clinical Image-based Procedures: 11th International Workshop, CLIP 2022, Held in Conjunction with MICCAI 2022, Singapore, Proceedings},
-        series    = {Lecture Notes in Computer Science},
-        publisher = {Springer},
-        doi       = {https://doi.org/10.1007/978-3-031-23179-7_1},
+    @misc{gopalakrishnan2022diffpose,
+        title={Intraoperative 2D/3D Image Registration via Differentiable X-ray Rendering}, 
+        author={Vivek Gopalakrishnan and Neel Dey and Polina Golland},
+        year={2023},
+        eprint={2312.06358},
+        archivePrefix={arXiv},
+        primaryClass={cs.CV}
+    }
+
+    @inproceedings{gopalakrishnan2022diffdrr,
+        author={Gopalakrishnan, Vivek and Golland, Polina},
+        title={Fast Auto-Differentiable Digitally Reconstructed Radiographs for Solving Inverse Problems in Intraoperative Imaging},
+        year={2022},
+        booktitle={Clinical Image-based Procedures: 11th International Workshop, CLIP 2022, Held in Conjunction with MICCAI 2022, Singapore, Proceedings},
+        series={Lecture Notes in Computer Science},
+        publisher={Springer},
+        doi={https://doi.org/10.1007/978-3-031-23179-7_1},
     }
