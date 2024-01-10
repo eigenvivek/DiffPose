@@ -1,4 +1,4 @@
-name: preop
+name: diffpose
 channels:
   - conda-forge
   - pytorch
@@ -15,7 +15,6 @@ dependencies:
     - scikit-image
     - seaborn
     - pytorch-transformers
-    - pytorchse3
     - timm
     - torchmetrics
     - tqdm
