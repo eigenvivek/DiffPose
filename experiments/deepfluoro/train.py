@@ -57,7 +57,7 @@ def train(
     best_loss = torch.inf
 
     model.train()
-    for epoch in range(n_epochs):
+    for epoch in range(n_epochs + 1):
         losses = []
         for _ in (itr := tqdm(range(n_batches_per_epoch), leave=False)):
             contrast = contrast_distribution.sample().item()
@@ -144,7 +144,7 @@ def train(
                 f"checkpoints/specimen_{id_number:02d}_best.ckpt",
             )
 
-        if epoch % 25 == 0 and epoch != 0:
+        if epoch % 50 == 0:
             torch.save(
                 {
                     "model_state_dict": model.state_dict(),
