@@ -141,21 +141,20 @@ If you find `DiffPose` or
 [`DiffDRR`](https://github.com/eigenvivek/DiffDRR) useful in your work,
 please cite the appropriate papers:
 
-    @misc{gopalakrishnan2022diffpose,
-        title={Intraoperative 2D/3D Image Registration via Differentiable X-ray Rendering}, 
-        author={Vivek Gopalakrishnan and Neel Dey and Polina Golland},
-        year={2023},
-        eprint={2312.06358},
-        archivePrefix={arXiv},
-        primaryClass={cs.CV}
-    }
+```
+@article{gopalakrishnan2023intraoperative,
+  title={Intraoperative {2D/3D} Image Registration via Differentiable X-ray Rendering},
+  author={Gopalakrishnan, Vivek and Dey, Neel and Golland, Polina},
+  journal={arXiv preprint arXiv:2312.06358},
+  year={2023}
+}
 
-    @inproceedings{gopalakrishnan2022diffdrr,
-        author={Gopalakrishnan, Vivek and Golland, Polina},
-        title={Fast Auto-Differentiable Digitally Reconstructed Radiographs for Solving Inverse Problems in Intraoperative Imaging},
-        year={2022},
-        booktitle={Clinical Image-based Procedures: 11th International Workshop, CLIP 2022, Held in Conjunction with MICCAI 2022, Singapore, Proceedings},
-        series={Lecture Notes in Computer Science},
-        publisher={Springer},
-        doi={https://doi.org/10.1007/978-3-031-23179-7_1},
-    }
+@inproceedings{gopalakrishnan2022fast,
+  title={Fast Auto-Differentiable Digitally Reconstructed Radiographs for Solving Inverse Problems in Intraoperative Imaging},
+  author={Gopalakrishnan, Vivek and Golland, Polina},
+  booktitle={Workshop on Clinical Image-Based Procedures},
+  pages={1--11},
+  year={2022},
+  organization={Springer}
+}
+```
