@@ -10,17 +10,17 @@ import torch
 from typing import Optional
 
 from beartype import beartype
+from diffdrr.utils import Transform3d
 from diffdrr.utils import convert as convert_so3
+from diffdrr.utils import se3_exp_map, se3_log_map
 from jaxtyping import Float, jaxtyped
-from pytorch3d.transforms import Transform3d
-from pytorchse3.se3 import se3_exp_map, se3_log_map
 
 # %% ../notebooks/api/02_calibration.ipynb 7
 @beartype
 class RigidTransform(Transform3d):
     """Wrapper of pytorch3d.transforms.Transform3d with extra functionalities."""
 
-    @jaxtyped
+    @jaxtyped(typechecker=beartype)
     def __init__(
         self,
         R: Float[torch.Tensor, "..."],
@@ -74,7 +74,7 @@ class RigidTransform(Transform3d):
         return RigidTransform(R, t, device=self.device, dtype=self.dtype)
 
     def get_se3_log(self):
-        return se3_log_map(self.get_matrix().transpose(-1, -2))
+        return se3_log_map(self.get_matrix())
 
 # %% ../notebooks/api/02_calibration.ipynb 8
 def convert(
@@ -88,8 +88,8 @@ def convert(
 
     # Convert any input parameterization to a RigidTransform
     if input_parameterization == "se3_log_map":
-        transform = torch.concat([*transform], axis=-1)
-        matrix = se3_exp_map(transform)
+        transform = torch.concat([transform[1], transform[0]], axis=-1)
+        matrix = se3_exp_map(transform).transpose(-1, -2)
         transform = RigidTransform(
             R=matrix[..., :3, :3],
             t=matrix[..., :3, 3],
@@ -111,8 +111,8 @@ def convert(
         return transform
     elif output_parameterization == "se3_log_map":
         se3_log = transform.get_se3_log()
-        log_R_vee = se3_log[..., :3]
-        log_t_vee = se3_log[..., 3:]
+        log_t_vee = se3_log[..., :3]
+        log_R_vee = se3_log[..., 3:]
         return log_R_vee, log_t_vee
     else:
         return (
@@ -121,8 +121,7 @@ def convert(
         )
 
 # %% ../notebooks/api/02_calibration.ipynb 10
-@beartype
-@jaxtyped
+@jaxtyped(typechecker=beartype)
 def perspective_projection(
     extrinsic: RigidTransform,  # Extrinsic camera matrix (world to camera)
     intrinsic: Float[torch.Tensor, "3 3"],  # Intrinsic camera matrix (camera to image)

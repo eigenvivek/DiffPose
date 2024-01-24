@@ -1,4 +1,5 @@
 checkpoints/
+evaluations/
 data/
 logs/
 runs/

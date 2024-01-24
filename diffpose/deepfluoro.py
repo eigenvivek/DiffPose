@@ -306,8 +306,6 @@ def preprocess(img, size=None, initial_energy=torch.tensor(65487.0)):
     return img
 
 # %% ../notebooks/api/00_deepfluoro.ipynb 26
-from beartype import beartype
-
 from .calibration import RigidTransform, convert
 
 

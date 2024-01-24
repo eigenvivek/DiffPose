@@ -115,8 +115,6 @@ class LjubljanaDataset(torch.utils.data.Dataset):
         )
 
 # %% ../notebooks/api/01_ljubljana.ipynb 7
-from beartype import beartype
-
 from .calibration import RigidTransform, convert
 
 

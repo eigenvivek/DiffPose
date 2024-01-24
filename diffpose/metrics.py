@@ -63,28 +63,25 @@ class GradientNormalizedCrossCorrelation(CustomMetric):
 # %% ../notebooks/api/04_metrics.ipynb 9
 import torch
 from beartype import beartype
-from diffdrr.utils import convert
-from jaxtyping import Float, jaxtyped
-from pytorch3d.transforms import (
-    so3_rotation_angle,
+from diffdrr.utils import (
+    convert,
+    so3_log_map,
     so3_relative_angle,
+    so3_rotation_angle,
     standardize_quaternion,
 )
+from jaxtyping import Float, jaxtyped
 
 from .calibration import RigidTransform
 
 # %% ../notebooks/api/04_metrics.ipynb 10
-from pytorchse3.so3 import so3_log_map
-
-
 class GeodesicSO3(torch.nn.Module):
     """Calculate the angular distance between two rotations in SO(3)."""
 
     def __init__(self):
         super().__init__()
 
-    @beartype
-    @jaxtyped
+    @jaxtyped(typechecker=beartype)
     def forward(
         self,
         pose_1: RigidTransform,
@@ -102,8 +99,7 @@ class GeodesicTranslation(torch.nn.Module):
     def __init__(self):
         super().__init__()
 
-    @beartype
-    @jaxtyped
+    @jaxtyped(typechecker=beartype)
     def forward(
         self,
         pose_1: RigidTransform,
@@ -120,8 +116,7 @@ class GeodesicSE3(torch.nn.Module):
     def __init__(self):
         super().__init__()
 
-    @beartype
-    @jaxtyped
+    @jaxtyped(typechecker=beartype)
     def forward(
         self,
         pose_1: RigidTransform,
@@ -146,8 +141,7 @@ class DoubleGeodesic(torch.nn.Module):
         self.rotation = GeodesicSO3()
         self.translation = GeodesicTranslation()
 
-    @beartype
-    @jaxtyped
+    @jaxtyped(typechecker=beartype)
     def forward(self, pose_1: RigidTransform, pose_2: RigidTransform):
         angular_geodesic = self.sdr * self.rotation(pose_1, pose_2)
         translation_geodesic = self.translation(pose_1, pose_2)
