@@ -63,14 +63,14 @@ class GradientNormalizedCrossCorrelation(CustomMetric):
 # %% ../notebooks/api/04_metrics.ipynb 9
 import torch
 from beartype import beartype
-from diffdrr.utils import convert
-from jaxtyping import Float, jaxtyped
-from pytorch3d.transforms import (
+from diffdrr.utils import (
+    convert,
     so3_log_map,
     so3_relative_angle,
     so3_rotation_angle,
     standardize_quaternion,
 )
+from jaxtyping import Float, jaxtyped
 
 from .calibration import RigidTransform
 

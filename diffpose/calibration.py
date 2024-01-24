@@ -10,9 +10,10 @@ import torch
 from typing import Optional
 
 from beartype import beartype
+from diffdrr.utils import Transform3d
 from diffdrr.utils import convert as convert_so3
+from diffdrr.utils import se3_exp_map, se3_log_map
 from jaxtyping import Float, jaxtyped
-from pytorch3d.transforms import Transform3d, se3_exp_map, se3_log_map
 
 # %% ../notebooks/api/02_calibration.ipynb 7
 @beartype

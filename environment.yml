@@ -2,13 +2,11 @@ name: diffpose
 channels:
   - conda-forge
   - pytorch
-  - pytorch3d
   - nvidia
 dependencies:
   - pip
   - pytorch
   - torchvision
-  - pytorch3d
   - pip:
     - diffdrr>=0.3.8
     - h5py
