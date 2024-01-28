@@ -131,7 +131,7 @@ def get_random_offset(view, batch_size: int, device) -> RigidTransform:
         t1 = torch.distributions.Normal(75, 30).sample((batch_size,))
         t2 = torch.distributions.Normal(-80, 30).sample((batch_size,))
         t3 = torch.distributions.Normal(-5, 30).sample((batch_size,))
-        r1 = torch.distributions.Normal(0.0, 0.1).sample((batch_size,))
+        r1 = torch.distributions.Normal(0, 0.1).sample((batch_size,))
         r2 = torch.distributions.Normal(0, 0.05).sample((batch_size,))
         r3 = torch.distributions.Normal(1.55, 0.05).sample((batch_size,))
     else:

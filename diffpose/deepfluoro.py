@@ -325,7 +325,7 @@ def get_random_offset(batch_size: int, device) -> RigidTransform:
         "se3_exp_map",
     )
 
-# %% ../notebooks/api/00_deepfluoro.ipynb 33
+# %% ../notebooks/api/00_deepfluoro.ipynb 32
 from torchvision.transforms import Compose, Lambda, Normalize, Resize
 
 
