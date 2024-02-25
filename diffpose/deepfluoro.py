@@ -12,8 +12,9 @@ import h5py
 import numpy as np
 import torch
 from beartype import beartype
+from diffdrr.pose import RigidTransform, convert, make_matrix
 
-from .calibration import RigidTransform, perspective_projection
+from .calibration import perspective_projection
 
 # %% ../notebooks/api/00_deepfluoro.ipynb 5
 @beartype
@@ -49,8 +50,11 @@ class DeepFluoroDataset(torch.utils.data.Dataset):
         isocenter_rot = torch.tensor([[torch.pi / 2, 0.0, -torch.pi / 2]])
         isocenter_xyz = torch.tensor(self.volume.shape) * self.spacing / 2
         isocenter_xyz = isocenter_xyz.unsqueeze(0)
-        self.isocenter_pose = RigidTransform(
-            isocenter_rot, isocenter_xyz, "euler_angles", "ZYX"
+        self.isocenter_pose = convert(
+            isocenter_rot,
+            isocenter_xyz,
+            parameterization="euler_angles",
+            convention="ZYX",
         )
 
         # Camera matrices and fiducials for the specimen
@@ -58,16 +62,34 @@ class DeepFluoroDataset(torch.utils.data.Dataset):
 
         # Miscellaneous transformation matrices for wrangling SE(3) poses
         self.flip_xz = RigidTransform(
-            torch.tensor([[0.0, 0.0, -1.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]]),
-            torch.zeros(3),
+            torch.tensor(
+                [
+                    [0.0, 0.0, -1.0, 0.0],
+                    [0.0, 1.0, 0.0, 0.0],
+                    [1.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 1.0],
+                ]
+            )
         )
         self.translate = RigidTransform(
-            torch.eye(3),
-            torch.tensor([-self.focal_len / 2, 0.0, 0.0]),
+            torch.tensor(
+                [
+                    [1.0, 0.0, 0.0, -self.focal_len / 2],
+                    [0.0, 1.0, 0.0, 0.0],
+                    [0.0, 0.0, 1.0, 0.0],
+                    [0.0, 0.0, 0.0, 1.0],
+                ]
+            )
         )
         self.flip_180 = RigidTransform(
-            torch.tensor([[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]]),
-            torch.zeros(3),
+            torch.tensor(
+                [
+                    [1.0, 0.0, 0.0, 0.0],
+                    [0.0, -1.0, 0.0, 0.0],
+                    [0.0, 0.0, -1.0, 0.0],
+                    [0.0, 0.0, 0.0, 1.0],
+                ]
+            )
         )
 
     def __len__(self):
@@ -87,7 +109,7 @@ class DeepFluoroDataset(torch.utils.data.Dataset):
         projection = self.projections[f"{idx:03d}"]
         img = torch.from_numpy(projection["image/pixels"][:])
         world2volume = torch.from_numpy(projection["gt-poses/cam-to-pelvis-vol"][:])
-        world2volume = RigidTransform(world2volume[:3, :3], world2volume[:3, 3])
+        world2volume = RigidTransform(world2volume)
         pose = convert_deepfluoro_to_diffdrr(self, world2volume)
 
         # Handle rotations in the imaging dataset
@@ -186,7 +208,7 @@ class Evaluator:
         extrinsic = (
             self.flip_xz.inverse().compose(self.translate.inverse()).compose(pose)
         )
-        return extrinsic.transform_points(x)
+        return extrinsic(x)
 
     def __call__(self, pose):
         pred_projected_fiducials = self.project(pose)
@@ -255,20 +277,29 @@ def load_deepfluoro_dataset(id_number, filename):
 
 def parse_volume(specimen):
     # Parse the volume
-    spacing = specimen["vol/spacing"][:].flatten()
+    spacing = specimen["vol/spacing"][:].flatten().astype(np.float32)
     volume = specimen["vol/pixels"][:].astype(np.float32)
     volume = np.swapaxes(volume, 0, 2)[::-1].copy()
 
-    # Parse the translation matrix from LPS coordinates to volume coordinates
-    origin = torch.from_numpy(specimen["vol/origin"][:].flatten())
-    lps2volume = RigidTransform(torch.eye(3), origin)
+    # Parse the translation matrix from anatomical coordinates to world coordinates
+    origin = torch.from_numpy(specimen["vol/origin"][:].flatten()).to(torch.float32)
+    lps2volume = RigidTransform(
+        torch.tensor(
+            [
+                [1.0, 0.0, 0.0, origin[0]],
+                [0.0, 1.0, 0.0, origin[1]],
+                [0.0, 0.0, 1.0, origin[2]],
+                [0.0, 0.0, 0.0, 1.0],
+            ]
+        )
+    )
     return volume, spacing, lps2volume
 
 
 def parse_proj_params(f):
     proj_params = f["proj-params"]
     extrinsic = torch.from_numpy(proj_params["extrinsic"][:])
-    extrinsic = RigidTransform(extrinsic[..., :3, :3], extrinsic[:3, 3])
+    extrinsic = RigidTransform(extrinsic)
     intrinsic = torch.from_numpy(proj_params["intrinsic"][:])
     num_cols = float(proj_params["num-cols"][()])
     num_rows = float(proj_params["num-rows"][()])
@@ -306,7 +337,7 @@ def preprocess(img, size=None, initial_energy=torch.tensor(65487.0)):
     return img
 
 # %% ../notebooks/api/00_deepfluoro.ipynb 26
-from .calibration import RigidTransform, convert
+from diffdrr.pose import RigidTransform, convert
 
 
 @beartype
@@ -320,9 +351,9 @@ def get_random_offset(batch_size: int, device) -> RigidTransform:
     log_R_vee = torch.stack([r1, r2, r3], dim=1).to(device)
     log_t_vee = torch.stack([t1, t2, t3], dim=1).to(device)
     return convert(
-        [log_R_vee, log_t_vee],
-        "se3_log_map",
-        "se3_exp_map",
+        log_R_vee,
+        log_t_vee,
+        parameterization="se3_log_map",
     )
 
 # %% ../notebooks/api/00_deepfluoro.ipynb 32

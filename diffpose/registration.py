@@ -8,7 +8,7 @@ import timm
 import torch
 
 # %% ../notebooks/api/03_registration.ipynb 5
-from .calibration import RigidTransform, convert
+from diffdrr.pose import RigidTransform, convert
 
 
 class PoseRegressor(torch.nn.Module):
@@ -49,10 +49,10 @@ class PoseRegressor(torch.nn.Module):
         rot = self.rot_regression(x)
         xyz = self.xyz_regression(x)
         return convert(
-            [rot, xyz],
-            input_parameterization=self.parameterization,
-            output_parameterization="se3_exp_map",
-            input_convention=self.convention,
+            rot,
+            xyz,
+            parameterization=self.parameterization,
+            convention=self.convention,
         )
 
 # %% ../notebooks/api/03_registration.ipynb 6
@@ -67,11 +67,7 @@ N_ANGULAR_COMPONENTS = {
 }
 
 # %% ../notebooks/api/03_registration.ipynb 11
-from diffdrr.detector import make_xrays
 from diffdrr.drr import DRR
-from diffdrr.siddon import siddon_raycast
-
-from .calibration import RigidTransform
 
 
 class SparseRegistration(torch.nn.Module):

@@ -42,13 +42,15 @@ def overlay_edges(target, pred, sigma=1.5):
 
 # %% ../notebooks/api/05_visualization.ipynb 8
 import pyvista
+from diffdrr.pose import RigidTransform
 from torch.nn.functional import pad
 
-from .calibration import RigidTransform, perspective_projection
+from .calibration import perspective_projection
 
 # %% ../notebooks/api/05_visualization.ipynb 9
-def fiducials_3d_to_projected_fiducials_3d(specimen, pose):
+def fiducials_3d_to_projected_fiducials_3d(specimen, pose: RigidTransform):
     # Extrinsic camera matrix
+    pose = pose.cpu()
     extrinsic = (
         specimen.lps2volume.inverse()
         .compose(pose.inverse())
@@ -68,32 +70,22 @@ def fiducials_3d_to_projected_fiducials_3d(specimen, pose):
     extrinsic = (
         specimen.flip_xz.inverse().compose(specimen.translate.inverse()).compose(pose)
     )
-    return extrinsic.transform_points(x)
+    return extrinsic(x)
 
 # %% ../notebooks/api/05_visualization.ipynb 10
-def fiducials_to_mesh(
-    specimen,
-    rotation=None,
-    translation=None,
-    parameterization=None,
-    convention=None,
-    detector=None,
-):
+def fiducials_to_mesh(specimen, pose: RigidTransform = None, detector=None):
     """
     Use camera matrices to get 2D projections of 3D fiducials for a given pose.
     If the detector is passed, 2D projections will be filtered for those that lie
     on the detector plane.
     """
     # Location of fiducials in 3D
-    fiducials_3d = specimen.lps2volume.inverse().transform_points(specimen.fiducials)
+    fiducials_3d = specimen.lps2volume.inverse()(specimen.fiducials)
     fiducials_3d = pyvista.PolyData(fiducials_3d.squeeze().numpy())
-    if rotation is None and translation is None and parameterization is None:
+    if pose is None:
         return fiducials_3d
 
     # Embedding of fiducials in 2D
-    pose = RigidTransform(
-        rotation, translation, parameterization, convention, device="cpu"
-    )
     fiducials_2d = fiducials_3d_to_projected_fiducials_3d(specimen, pose)
     fiducials_2d = fiducials_2d.squeeze().numpy()
 

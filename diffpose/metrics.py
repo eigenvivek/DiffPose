@@ -63,13 +63,7 @@ class GradientNormalizedCrossCorrelation(CustomMetric):
 # %% ../notebooks/api/04_metrics.ipynb 9
 import torch
 from beartype import beartype
-from diffdrr.utils import (
-    convert,
-    so3_log_map,
-    so3_relative_angle,
-    so3_rotation_angle,
-    standardize_quaternion,
-)
+from diffdrr.pose import convert, so3_log_map
 from jaxtyping import Float, jaxtyped
 
 from .calibration import RigidTransform
@@ -87,14 +81,14 @@ class GeodesicSO3(torch.nn.Module):
         pose_1: RigidTransform,
         pose_2: RigidTransform,
     ) -> Float[torch.Tensor, "b"]:
-        r1 = pose_1.get_rotation()
-        r2 = pose_2.get_rotation()
-        rdiff = r1 @ r2.transpose(-1, -2)
+        r1 = pose_1.matrix[..., :3, :3]
+        r2 = pose_2.matrix[..., :3, :3]
+        rdiff = r1.transpose(-1, -2) @ r2
         return so3_log_map(rdiff).norm(dim=-1)
 
 
 class GeodesicTranslation(torch.nn.Module):
-    """Calculate the angular distance between two rotations in SO(3)."""
+    """Calculate the angular distance between two translations in R^3."""
 
     def __init__(self):
         super().__init__()
@@ -105,8 +99,8 @@ class GeodesicTranslation(torch.nn.Module):
         pose_1: RigidTransform,
         pose_2: RigidTransform,
     ) -> Float[torch.Tensor, "b"]:
-        t1 = pose_1.get_translation()
-        t2 = pose_2.get_translation()
+        t1 = pose_1.matrix[..., :3, 3]
+        t2 = pose_2.matrix[..., :3, 3]
         return (t1 - t2).norm(dim=1)
 
 # %% ../notebooks/api/04_metrics.ipynb 11

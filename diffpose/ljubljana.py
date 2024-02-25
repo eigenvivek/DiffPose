@@ -10,8 +10,7 @@ from typing import Optional, Union
 import h5py
 import torch
 from beartype import beartype
-
-from .calibration import RigidTransform
+from diffdrr.pose import RigidTransform, convert
 
 # %% ../notebooks/api/01_ljubljana.ipynb 5
 from diffdrr.utils import parse_intrinsic_matrix
@@ -42,12 +41,12 @@ class LjubljanaDataset(torch.utils.data.Dataset):
         self.flip_xz = RigidTransform(
             torch.tensor(
                 [
-                    [0.0, 0.0, -1.0],
-                    [0.0, 1.0, 0.0],
-                    [1.0, 0.0, 0.0],
+                    [0.0, 0.0, -1.0, 0.0],
+                    [0.0, 1.0, 0.0, 0.0],
+                    [1.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 1.0],
                 ]
             ),
-            torch.zeros(3),
         )
 
     def __len__(self):
@@ -60,7 +59,7 @@ class LjubljanaDataset(torch.utils.data.Dataset):
         idx += 1
         extrinsic = self.f[f"subject{idx:02d}/proj-{self.view}/extrinsic"][:]
         extrinsic = torch.from_numpy(extrinsic)
-        extrinsic = RigidTransform(extrinsic[..., :3, :3], extrinsic[:3, 3])
+        extrinsic = RigidTransform(extrinsic)
 
         intrinsic = self.f[f"subject{idx:02d}/proj-{self.view}/intrinsic"][:]
         intrinsic = torch.from_numpy(intrinsic)
@@ -84,8 +83,14 @@ class LjubljanaDataset(torch.utils.data.Dataset):
         )
 
         translate = RigidTransform(
-            torch.eye(3),
-            torch.tensor([-focal_len / 2, 0.0, 0.0]),
+            torch.tensor(
+                [
+                    [1.0, 0.0, 0.0, -focal_len / 2],
+                    [0.0, 1.0, 0.0, 0.0],
+                    [0.0, 0.0, 1.0, 0.0],
+                    [0.0, 0.0, 0.0, 1.0],
+                ]
+            )
         )
         pose = translate.compose(self.flip_xz).compose(extrinsic.inverse())
 
@@ -95,8 +100,11 @@ class LjubljanaDataset(torch.utils.data.Dataset):
         isocenter_rot = torch.tensor([[torch.pi / 2, 0.0, -torch.pi / 2]])
         isocenter_xyz = torch.tensor(volume.shape) * spacing / 2
         isocenter_xyz = isocenter_xyz.unsqueeze(0)
-        isocenter_pose = RigidTransform(
-            isocenter_rot, isocenter_xyz, "euler_angles", "ZYX"
+        isocenter_pose = convert(
+            isocenter_rot,
+            isocenter_xyz,
+            parameterization="euler_angles",
+            convention="ZYX",
         )
 
         return (
@@ -115,7 +123,7 @@ class LjubljanaDataset(torch.utils.data.Dataset):
         )
 
 # %% ../notebooks/api/01_ljubljana.ipynb 7
-from .calibration import RigidTransform, convert
+from diffdrr.pose import RigidTransform, convert
 
 
 @beartype
@@ -140,9 +148,9 @@ def get_random_offset(view, batch_size: int, device) -> RigidTransform:
     log_R_vee = torch.stack([r1, r2, r3], dim=1).to(device)
     log_t_vee = torch.stack([t1, t2, t3], dim=1).to(device)
     return convert(
-        [log_R_vee, log_t_vee],
-        "se3_log_map",
-        "se3_exp_map",
+        log_R_vee,
+        log_t_vee,
+        parameterization="se3_log_map",
     )
 
 # %% ../notebooks/api/01_ljubljana.ipynb 9
