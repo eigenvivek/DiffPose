@@ -184,11 +184,11 @@ from .calibration import perspective_projection
 
 
 class Evaluator:
-    def __init__(self, specimen, idx):
+    def __init__(self, specimen, idx, intrinsic=None):
         # Save matrices to device
         self.translate = specimen.translate
         self.flip_xz = specimen.flip_xz
-        self.intrinsic = specimen.intrinsic
+        self.intrinsic = specimen.intrinsic if intrinsic is None else intrinsic
         self.intrinsic_inv = specimen.intrinsic.inverse()
 
         # Get gt fiducial locations
