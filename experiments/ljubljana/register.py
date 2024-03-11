@@ -10,7 +10,6 @@ from diffdrr.metrics import MultiscaleNormalizedCrossCorrelation2d
 from torchvision.transforms.functional import resize
 from tqdm import tqdm
 
-from diffpose.calibration import RigidTransform, convert
 from diffpose.ljubljana import Evaluator, LjubljanaDataset, Transforms
 from diffpose.metrics import DoubleGeodesic, GeodesicSE3
 from diffpose.registration import PoseRegressor, SparseRegistration

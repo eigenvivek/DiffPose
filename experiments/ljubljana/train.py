@@ -85,12 +85,12 @@ def train(
             try:
                 offset = get_random_offset(view, batch_size, device)
                 pose = isocenter_pose.compose(offset)
-                img = drr(None, None, None, pose=pose)
+                img = drr(pose)
                 img = transforms(img)
     
                 pred_offset = model(img)
                 pred_pose = isocenter_pose.compose(pred_offset)
-                pred_img = drr(None, None, None, pose=pred_pose)
+                pred_img = drr(pred_pose)
                 pred_img = transforms(pred_img)
     
                 ncc = metric(pred_img, img)
