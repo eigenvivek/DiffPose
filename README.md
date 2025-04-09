@@ -15,6 +15,14 @@ black](https://img.shields.io/badge/Code%20style-black-black.svg)](https://githu
 
 ![](experiments/test_time_optimization.gif)
 
+> [!NOTE]
+>
+> If you're considering using `DiffPose` for your own data, instead use [`xvr`](https://github.com/astral-sh/uv), the
+> successor project from the same authors.
+>
+> `xvr` is actively maintained and offers many features not present in `DiffPose`, such as a Python API and CLI for 
+> training your own patient-specific pose regression networks (in about 5 minutes!) and performing test-time optimization.
+
 ## Install
 
 To install `DiffPose` and the requirements in
