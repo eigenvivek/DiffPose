@@ -17,7 +17,7 @@ black](https://img.shields.io/badge/Code%20style-black-black.svg)](https://githu
 
 > [!NOTE]
 >
-> If you're considering using `DiffPose` for your own data, instead use [`xvr`](https://github.com/astral-sh/uv), the
+> If you're considering using `DiffPose` for your own data, instead use [`xvr`](https://github.com/eigenvivek/xvr), the
 > successor project from the same authors.
 >
 > `xvr` is actively maintained and offers many features not present in `DiffPose`, such as a Python API and CLI for 
