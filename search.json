@@ -1,0 +1,436 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "DiffPose",
+    "section": "",
+    "text": "Intraoperative 2D/3D registration via differentiable X-ray rendering",
+    "crumbs": [
+      "DiffPose"
+    ]
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "DiffPose",
+    "section": "Install",
+    "text": "Install\nTo install DiffPose and the requirements in environment.yml, run:\npip install diffpose\nThe differentiable X-ray renderer that powers the backend of DiffPose is available at DiffDRR.",
+    "crumbs": [
+      "DiffPose"
+    ]
+  },
+  {
+    "objectID": "index.html#datasets",
+    "href": "index.html#datasets",
+    "title": "DiffPose",
+    "section": "Datasets",
+    "text": "Datasets\nWe evaluate DiffPose networks on the following open-source datasets:\n\n\n\nDataset\nAnatomy\n# of Subjects\n# of 2D Images\nCTs\nX-rays\nFiducials\n\n\n\n\nDeepFluoro\nPelvis\n6\n366\n✅\n✅\n❌\n\n\nLjubljana\nCerebrovasculature\n10\n20\n✅\n✅\n✅\n\n\n\n\n\nDeepFluoro (Grupp et al., 2020) provides paired X-ray fluoroscopy images and CT volume of the pelvis. The data were collected from six cadaveric subjects at John Hopkins University. Ground truth camera poses were estimated with an offline registration process. A visualization of one X-ray / CT pair in the DeepFluoro dataset is available here.\n\nmkdir -p data/\nwget --no-check-certificate -O data/ipcai_2020_full_res_data.zip \"http://archive.data.jhu.edu/api/access/datafile/:persistentId/?persistentId=doi:10.7281/T1/IFSXNV/EAN9GH\"\nunzip -o data/ipcai_2020_full_res_data.zip -d data\nrm data/ipcai_2020_full_res_data.zip\n\nLjubljana (Mitrovic et al., 2013) provides paired 2D/3D digital subtraction angiography (DSA) images. The data were collected from 10 patients undergoing endovascular image-guided interventions at the University of Ljubljana. Ground truth camera poses were estimated by registering surface fiducial markers.\n\nmkdir -p data/\nwget --no-check-certificate -O data/ljubljana.zip \"https://drive.google.com/uc?export=download&confirm=yes&id=1x585pGLI8QGk21qZ2oGwwQ9LMJ09Tqrx\"\nunzip -o data/ljubljana.zip -d data\nrm data/ljubljana.zip",
+    "crumbs": [
+      "DiffPose"
+    ]
+  },
+  {
+    "objectID": "index.html#experiments",
+    "href": "index.html#experiments",
+    "title": "DiffPose",
+    "section": "Experiments",
+    "text": "Experiments\nTo run the experiments in DiffPose, run the following scripts (ensure you’ve downloaded the data first):\n# DeepFluoro dataset\ncd experiments/deepfluoro\nsrun python train.py     # Pretrain pose regression CNN on synthetic X-rays\nsrun python register.py  # Run test-time optimization with the best network per subject\n# Ljubljana dataset\ncd experiments/ljubljana\nsrun python train.py\nsrun python register.py\nThe training and test-time optimization scripts use SLURM to run on all subjects in parallel:\n\nexperiments/deepfluoro/train.py is configured to run across six A6000 GPUs\nexperiments/deepfluoro/register.py is configured to run across six 2080 Ti GPUs\nexperiments/ljubljana/train.py is configured to run across twenty 2080 Ti GPUs\nexperiments/ljubljana/register.py is configured to run on twenty 2080 Ti GPUs\n\nThe GPU configurations can be changed at the end of each script using submitit.",
+    "crumbs": [
+      "DiffPose"
+    ]
+  },
+  {
+    "objectID": "index.html#development",
+    "href": "index.html#development",
+    "title": "DiffPose",
+    "section": "Development",
+    "text": "Development\nDiffPose package, docs, and CI are all built using nbdev. To get set up withnbdev, install the following\nconda install jupyterlab nbdev -c fastai -c conda-forge \nnbdev_install_quarto      # To build docs\nnbdev_install_hooks       # Make notebooks git-friendly\npip install -e  \".[dev]\"  # Install the development verison of DiffPose\nRunning nbdev_help will give you the full list of options. The most important ones are\nnbdev_preview  # Render docs locally and inspect in browser\nnbdev_clean    # NECESSARY BEFORE PUSHING\nnbdev_test     # tests notebooks\nnbdev_export   # builds package and builds docs\nnbdev_readme   # Render the readme\nFor more details, follow this in-depth tutorial.",
+    "crumbs": [
+      "DiffPose"
+    ]
+  },
+  {
+    "objectID": "index.html#citing-diffpose",
+    "href": "index.html#citing-diffpose",
+    "title": "DiffPose",
+    "section": "Citing DiffPose",
+    "text": "Citing DiffPose\nIf you find DiffPose or DiffDRR useful in your work, please cite the appropriate papers:\n@misc{gopalakrishnan2022diffpose,\n    title={Intraoperative 2D/3D Image Registration via Differentiable X-ray Rendering}, \n    author={Vivek Gopalakrishnan and Neel Dey and Polina Golland},\n    year={2023},\n    eprint={2312.06358},\n    archivePrefix={arXiv},\n    primaryClass={cs.CV}\n}\n\n@inproceedings{gopalakrishnan2022diffdrr,\n    author={Gopalakrishnan, Vivek and Golland, Polina},\n    title={Fast Auto-Differentiable Digitally Reconstructed Radiographs for Solving Inverse Problems in Intraoperative Imaging},\n    year={2022},\n    booktitle={Clinical Image-based Procedures: 11th International Workshop, CLIP 2022, Held in Conjunction with MICCAI 2022, Singapore, Proceedings},\n    series={Lecture Notes in Computer Science},\n    publisher={Springer},\n    doi={https://doi.org/10.1007/978-3-031-23179-7_1},\n}",
+    "crumbs": [
+      "DiffPose"
+    ]
+  },
+  {
+    "objectID": "experiments/loss_landscapes.html",
+    "href": "experiments/loss_landscapes.html",
+    "title": "Visualizing loss landscapes",
+    "section": "",
+    "text": "Images in the DeepFluoro dataset come with ground truth camera poses. By sampling simulated X-rays around the true pose, we can visualize the loss landscapes that we will have to optimize.\nThe metrics we try are\nIf you want to try your own image similarity metric, implement it as a torchmetrics subclass.\nCode\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport seaborn\nimport torch\nfrom diffdrr.drr import DRR\nfrom diffdrr.utils import convert\nfrom torchmetrics import MeanAbsoluteError, MeanSquaredError, MetricCollection\nfrom torchmetrics.image import (\n    MultiScaleStructuralSimilarityIndexMeasure,\n    PeakSignalNoiseRatio,\n    StructuralSimilarityIndexMeasure,\n)\nfrom torchvision.transforms.functional import center_crop, resize\nfrom tqdm import tqdm\n\nfrom diffpose.deepfluoro import DeepFluoroDataset, Transforms\nfrom diffpose.metrics import (\n    GradientNormalizedCrossCorrelation,\n    MultiscaleNormalizedCrossCorrelation,\n    NormalizedCrossCorrelation,\n)\n\n\nclass Simulator(torch.nn.Module):\n    def __init__(self, id_number, idx, subsample=8, **deep_fluoro_kwargs):\n        super().__init__()\n        self.specimen = DeepFluoroDataset(id_number, **deep_fluoro_kwargs)\n        self.drr = self.setup_diffdrr(self.specimen, subsample)\n        self.transforms = Transforms(size=self.height)\n\n        true_xray, pose = self.specimen[idx]\n        true_xray = self.transforms(true_xray)\n        self.true_xray = true_xray.cuda()\n\n        self.rotations = convert(\n            pose.get_rotation(), \"matrix\", \"euler_angles\", None, \"ZYX\"\n        ).cuda()\n        self.translations = pose.get_translation().cuda()\n\n    def setup_diffdrr(self, specimen, subsample):\n        self.height = (1536 - 100) // subsample\n        dx = 0.194 * subsample\n        sdr = specimen.focal_len / 2\n        return DRR(\n            specimen.volume,\n            specimen.spacing,\n            sdr=sdr,\n            height=self.height,\n            delx=dx,\n            x0=specimen.x0,\n            y0=specimen.y0,\n            reverse_x_axis=True,\n            bone_attenuation_multiplier=2.5,\n        ).cuda()\n\n    def forward(\n        self, rotations_offset=[0.0, 0.0, 0.0], translations_offset=[0.0, 0.0, 0.0]\n    ):\n        rotations = self.rotations + torch.tensor([rotations_offset]).cuda()\n        translations = self.translations + torch.tensor([translations_offset]).cuda()\n        pred_xray = self.drr(\n            rotations, translations, parameterization=\"euler_angles\", convention=\"ZYX\"\n        )\n        pred_xray = self.transforms(pred_xray)\n        return pred_xray, self.true_xray\nsimulator = Simulator(6, idx=1)\nmetrics = MetricCollection(\n    {\n        \"MAE\": MeanAbsoluteError(),\n        \"MSE\": MeanSquaredError(),\n        \"PSNR\": PeakSignalNoiseRatio(),\n        \"SSIM\": StructuralSimilarityIndexMeasure(),\n        \"mSSIM\": MultiScaleStructuralSimilarityIndexMeasure(),\n        \"NCC\": NormalizedCrossCorrelation(),\n        \"LNCC\": NormalizedCrossCorrelation(patch_size=13),\n        \"mNCC\": MultiscaleNormalizedCrossCorrelation(\n            patch_sizes=[13, None], patch_weights=[0.5, 0.5]\n        ),\n        \"GNCC\": GradientNormalizedCrossCorrelation(),\n    }\n).cuda()\n\n\ndef get_metrics(theta, phi, gamma, bx, by, bz):\n    x, y = simulator([theta, phi, gamma], [bx, by, bz])\n    m = metrics(x, y)\n    return [v.item() for v in m.values()]\nWe search over a large capture range to visualize local minima:\n# NCC for the angles\nstep = 0.025\nt_angles = torch.arange(-1, 1.01, step=step)\np_angles = torch.arange(-1, 1.01, step=step)\ng_angles = torch.arange(-1, 1.01, step=step)\n\n# Get coordinate-wise correlations\ntp_corrs = []\nfor t in tqdm(t_angles, ncols=50):\n    for p in p_angles:\n        xcorr = get_metrics(t, p, 0, 0, 0, 0)\n        tp_corrs.append(xcorr)\nTP = torch.tensor(tp_corrs).reshape(len(t_angles), len(p_angles), -1)\n\ntg_corrs = []\nfor t in tqdm(t_angles, ncols=50):\n    for g in g_angles:\n        xcorr = get_metrics(t, 0, g, 0, 0, 0)\n        tg_corrs.append(xcorr)\nTG = torch.tensor(tg_corrs).reshape(len(t_angles), len(g_angles), -1)\n\npg_corrs = []\nfor p in tqdm(p_angles, ncols=50):\n    for g in g_angles:\n        xcorr = get_metrics(0, p, g, 0, 0, 0)\n        pg_corrs.append(xcorr)\nPG = torch.tensor(pg_corrs).reshape(len(p_angles), len(g_angles), -1)\n\n100%|█████████████| 81/81 [03:18&lt;00:00,  2.45s/it]\n100%|█████████████| 81/81 [03:25&lt;00:00,  2.53s/it]\n100%|█████████████| 81/81 [03:22&lt;00:00,  2.50s/it]\n# NCC for the angles\nstep *= 100\nxs = torch.arange(-100, 101, step=step)\nys = torch.arange(-100, 101, step=step)\nzs = torch.arange(-100, 101, step=step)\n\n# Get coordinate-wise correlations\nxy_corrs = []\nfor x in tqdm(xs, ncols=50):\n    for y in ys:\n        xcorr = get_metrics(0, 0, 0, x, y, 0)\n        xy_corrs.append(xcorr)\nXY = torch.tensor(xy_corrs).reshape(len(xs), len(ys), -1)\n\nxz_corrs = []\nfor x in tqdm(xs, ncols=50):\n    for z in zs:\n        xcorr = get_metrics(0, 0, 0, x, 0, z)\n        xz_corrs.append(xcorr)\nXZ = torch.tensor(xz_corrs).reshape(len(xs), len(zs), -1)\n\nyz_corrs = []\nfor y in tqdm(ys, ncols=50):\n    for z in zs:\n        xcorr = get_metrics(0, 0, 0, 0, y, z)\n        yz_corrs.append(xcorr)\nYZ = torch.tensor(yz_corrs).reshape(len(ys), len(zs), -1)\n\n100%|█████████████| 81/81 [03:21&lt;00:00,  2.49s/it]\n100%|█████████████| 81/81 [03:20&lt;00:00,  2.47s/it]\n100%|█████████████| 81/81 [03:20&lt;00:00,  2.47s/it]",
+    "crumbs": [
+      "experiments",
+      "Visualizing loss landscapes"
+    ]
+  },
+  {
+    "objectID": "experiments/loss_landscapes.html#plots-and-takeaways",
+    "href": "experiments/loss_landscapes.html#plots-and-takeaways",
+    "title": "Visualizing loss landscapes",
+    "section": "Plots and takeaways",
+    "text": "Plots and takeaways\n\nNormalized Cross Correlation (Global NCC) appears to be the smoothest loss landscape\nLocal NCC (Local NCC) has the sharpest peak at the optimum, but has low gradients far from the optimum\nMultiscale NCC (mNCC) achieves a good tradeoff between NCC and LNCC\nGradient NCC (Gradient NCC) is also peaked at the optimum, but has a difficult landscape further away\nMAE, MSE, PSNR, SSIM, and mSSIM are inferior to NCC variants\n\n\n\nCode\nseaborn.set_theme(context=\"notebook\", style=\"ticks\")\n\n\ndef plot(idx, zmin=None, zmax=None):\n    if idx == 2 or idx == 3:\n        multiplier = -1\n    else:\n        multiplier = 1\n\n    ### 3D\n    fig = plt.figure(figsize=(10, 6.5), dpi=300)\n    axs = []\n\n    # Angles\n    xyx, xyy = torch.meshgrid(t_angles, p_angles, indexing=\"ij\")\n    xzx, xzz = torch.meshgrid(t_angles, g_angles, indexing=\"ij\")\n    yzy, yzz = torch.meshgrid(p_angles, g_angles, indexing=\"ij\")\n\n    ax = fig.add_subplot(2, 3, 1, projection=\"3d\")\n    ax.contourf(\n        xyx.numpy(),\n        xyy.numpy(),\n        multiplier * TP[..., idx].numpy(),\n        zdir=\"z\",\n        offset=(multiplier * TP[..., idx]).min(),\n        cmap=plt.get_cmap(\"rainbow\"),\n        alpha=0.5,\n    )\n    ax.plot_surface(\n        xyx.numpy(),\n        xyy.numpy(),\n        multiplier * TP[..., idx].numpy(),\n        rstride=1,\n        cstride=1,\n        cmap=plt.get_cmap(\"rainbow\"),\n        linewidth=0.0,\n    )\n    ax.set_xlabel(\"Δα (radians)\")\n    ax.set_ylabel(\"Δβ (radians)\")\n    ax.set_zlim3d(zmin, zmax)\n    axs.append(ax)\n\n    ax = fig.add_subplot(2, 3, 2, projection=\"3d\")\n    plt.title(\n        [\n            \"Gradient NCC\",\n            \"Local NCC\",\n            \"-MAE\",\n            \"-MSE\",\n            \"Global NCC\",\n            \"PSNR\",\n            \"SSIM\",\n            \"mNCC\",\n            \"mSSIM\",\n        ][idx]\n    )\n    ax.contourf(\n        xzx.numpy(),\n        xzz.numpy(),\n        multiplier * TG[..., idx].numpy(),\n        zdir=\"z\",\n        offset=(multiplier * TG[..., idx]).min(),\n        cmap=plt.get_cmap(\"rainbow\"),\n        alpha=0.5,\n    )\n    ax.plot_surface(\n        xzx.numpy(),\n        xzz.numpy(),\n        multiplier * TG[..., idx].numpy(),\n        rstride=1,\n        cstride=1,\n        cmap=plt.get_cmap(\"rainbow\"),\n        linewidth=0.0,\n    )\n    ax.set_xlabel(\"Δα (radians)\")\n    ax.set_ylabel(\"Δγ (radians)\")\n    ax.set_zlim3d(zmin, zmax)\n    axs.append(ax)\n\n    ax = fig.add_subplot(2, 3, 3, projection=\"3d\")\n    ax.contourf(\n        yzy.numpy(),\n        yzz.numpy(),\n        multiplier * PG[..., idx].numpy(),\n        zdir=\"z\",\n        offset=(multiplier * PG[..., idx]).min(),\n        cmap=plt.get_cmap(\"rainbow\"),\n        alpha=0.5,\n    )\n    ax.plot_surface(\n        yzy.numpy(),\n        yzz.numpy(),\n        multiplier * PG[..., idx].numpy(),\n        rstride=1,\n        cstride=1,\n        cmap=plt.get_cmap(\"rainbow\"),\n        linewidth=0.0,\n    )\n    ax.set_xlabel(\"Δβ (radians)\")\n    ax.set_ylabel(\"Δγ (radians)\")\n    ax.set_zlim3d(zmin, zmax)\n    axs.append(ax)\n\n    # Angles\n    xyx, xyy = torch.meshgrid(xs, ys, indexing=\"ij\")\n    xzx, xzz = torch.meshgrid(xs, zs, indexing=\"ij\")\n    yzy, yzz = torch.meshgrid(ys, zs, indexing=\"ij\")\n\n    ax = fig.add_subplot(2, 3, 4, projection=\"3d\")\n    ax.contourf(\n        xyx.numpy(),\n        xyy.numpy(),\n        multiplier * XY[..., idx],\n        zdir=\"z\",\n        offset=(multiplier * XY[..., idx]).min(),\n        cmap=plt.get_cmap(\"rainbow\"),\n        alpha=0.5,\n    )\n    ax.plot_surface(\n        xyx.numpy(),\n        xyy.numpy(),\n        multiplier * XY[..., idx].numpy(),\n        rstride=1,\n        cstride=1,\n        cmap=plt.get_cmap(\"rainbow\"),\n        linewidth=0.0,\n    )\n    ax.set_xlabel(\"ΔX (mm)\")\n    ax.set_ylabel(\"ΔY (mm)\")\n    ax.set_zlim3d(zmin, zmax)\n    axs.append(ax)\n\n    ax = fig.add_subplot(2, 3, 5, projection=\"3d\")\n    ax.contourf(\n        xzx.numpy(),\n        xzz.numpy(),\n        multiplier * XZ[..., idx].numpy(),\n        zdir=\"z\",\n        offset=(multiplier * XZ[..., idx]).min(),\n        cmap=plt.get_cmap(\"rainbow\"),\n        alpha=0.5,\n    )\n    ax.plot_surface(\n        xzx.numpy(),\n        xzz.numpy(),\n        multiplier * XZ[..., idx].numpy(),\n        rstride=1,\n        cstride=1,\n        cmap=plt.get_cmap(\"rainbow\"),\n        linewidth=0.0,\n    )\n    ax.set_xlabel(\"ΔX (mm)\")\n    ax.set_ylabel(\"ΔZ (mm)\")\n    ax.set_zlim3d(zmin, zmax)\n    axs.append(ax)\n\n    ax = fig.add_subplot(2, 3, 6, projection=\"3d\")\n    ax.contourf(\n        yzy.numpy(),\n        yzz.numpy(),\n        multiplier * YZ[..., idx].numpy(),\n        zdir=\"z\",\n        offset=(multiplier * YZ[..., idx]).min(),\n        cmap=plt.get_cmap(\"rainbow\"),\n        alpha=0.5,\n    )\n    ax.plot_surface(\n        yzy.numpy(),\n        yzz.numpy(),\n        multiplier * YZ[..., idx].numpy(),\n        rstride=1,\n        cstride=1,\n        cmap=plt.get_cmap(\"rainbow\"),\n        linewidth=0.0,\n    )\n    ax.set_xlabel(\"ΔY (mm)\")\n    ax.set_ylabel(\"ΔZ (mm)\")\n    ax.set_zlim3d(zmin, zmax)\n    axs.append(ax)\n\n    return fig, axs\n\n\n\nplot(0)\nplt.show()\n\n\n\n\n\n\n\n\n\nplot(1)\nplt.show()\n\n\n\n\n\n\n\n\n\nplot(2)\nplt.show()\n\n\n\n\n\n\n\n\n\nplot(3)\nplt.show()\n\n\n\n\n\n\n\n\n\nplot(4)\nplt.show()\n\n\n\n\n\n\n\n\n\nplot(5)\nplt.show()\n\n\n\n\n\n\n\n\n\nplot(6)\nplt.show()\n\n\n\n\n\n\n\n\n\nplot(7)\nplt.show()\n\n\n\n\n\n\n\n\n\nplot(8)\nplt.show()",
+    "crumbs": [
+      "experiments",
+      "Visualizing loss landscapes"
+    ]
+  },
+  {
+    "objectID": "experiments/sparse_rendering.html",
+    "href": "experiments/sparse_rendering.html",
+    "title": "Sparse rendering",
+    "section": "",
+    "text": "import matplotlib.pyplot as plt\nimport torch\nfrom diffdrr.drr import DRR\nfrom diffdrr.visualization import plot_drr\n\nfrom diffpose.deepfluoro import DeepFluoroDataset, Transforms\nfrom diffpose.registration import SparseRegistration, vector_to_img\n\n\nspecimen = DeepFluoroDataset(1)\nheight = 256\nsubsample = (1536 - 100) / height\ndelx = 0.194 * subsample\n\n_, pose = specimen[0]\npose = pose.cuda()\n\ndrr = DRR(\n    specimen.volume,\n    specimen.spacing,\n    sdr=specimen.focal_len / 2,\n    height=height,\n    delx=delx,\n    x0=specimen.x0,\n    y0=specimen.y0,\n    reverse_x_axis=True,\n    bone_attenuation_multiplier=2.5,\n).to(\"cuda\")\n\nregistration = SparseRegistration(drr, pose, parameterization=\"se3_log_map\")\n\n\n# Generate images with different numbers of patches\nimgs = []\nn_patches = [None, 100, 250, 500, 750]\nfor n in n_patches:\n    img, mask = registration(n, patch_size=13)\n    if n is not None:\n        img = vector_to_img(img, mask)\n    imgs.append(img)\n\n# Plot the images with various levels of sparsity\naxs = plot_drr(torch.concat(imgs))\nfor ax, n in zip(axs, n_patches):\n    if n is None:\n        n = \"full image\"\n    ax.set(xlabel=n)\nplt.show()\n\n\n\n\n\n\n\n\n\n# Full image with SparseRegistration\n\n29.5 ms ± 375 µs per loop (mean ± std. dev. of 100 runs, 10 loops each)\n\n\n\n# 100 patches\n\n8.57 ms ± 51.3 µs per loop (mean ± std. dev. of 100 runs, 10 loops each)\n\n\n\n# 250 patches\n\n15.3 ms ± 112 µs per loop (mean ± std. dev. of 100 runs, 10 loops each)\n\n\n\n# 500 patches\n\n22.1 ms ± 141 µs per loop (mean ± std. dev. of 100 runs, 10 loops each)\n\n\n\n# 750 patches\n\n25.7 ms ± 157 µs per loop (mean ± std. dev. of 100 runs, 10 loops each)\n\n\n\n# Full image with DiffDRR\n\n29.7 ms ± 203 µs per loop (mean ± std. dev. of 100 runs, 10 loops each)\n\n\n\nfrom diffdrr.metrics import MultiscaleNormalizedCrossCorrelation2d\n\nfrom diffpose.registration import VectorizedNormalizedCrossCorrelation2d\n\n\nmncc = MultiscaleNormalizedCrossCorrelation2d(patch_sizes=[None, 13], patch_weights=[0.5, 0.5])\nsmncc = VectorizedNormalizedCrossCorrelation2d()\n\n\n\n\n1.51 ms ± 1.3 µs per loop (mean ± std. dev. of 7 runs, 1,000 loops each)\n\n\n\npred_img, mask = registration(n_patches=1000, patch_size=13)\n\n\n\n\n3.27 ms ± 8.6 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)\n\n\n\nimg.shape\n\ntorch.Size([1, 1, 256, 256])\n\n\n\npred_img.shape\n\ntorch.Size([1, 14675])\n\n\n\n1 / 30e-3\n\n33.333333333333336\n\n\n\n1/ ((30+1.5) * 1e-3)\n\n31.746031746031747",
+    "crumbs": [
+      "experiments",
+      "Sparse rendering"
+    ]
+  },
+  {
+    "objectID": "api/visualization.html",
+    "href": "api/visualization.html",
+    "title": "visualization",
+    "section": "",
+    "text": "source\n\n\n\n overlay_edges (target, pred, sigma=1.5)\n\nGenerate edge overlays for a batch of targets and predictions.",
+    "crumbs": [
+      "api",
+      "visualization"
+    ]
+  },
+  {
+    "objectID": "api/visualization.html#overlay-over-predicted-edges-on-target-images",
+    "href": "api/visualization.html#overlay-over-predicted-edges-on-target-images",
+    "title": "visualization",
+    "section": "",
+    "text": "source\n\n\n\n overlay_edges (target, pred, sigma=1.5)\n\nGenerate edge overlays for a batch of targets and predictions.",
+    "crumbs": [
+      "api",
+      "visualization"
+    ]
+  },
+  {
+    "objectID": "api/visualization.html#using-pyvista-to-visualize-3d-geometry",
+    "href": "api/visualization.html#using-pyvista-to-visualize-3d-geometry",
+    "title": "visualization",
+    "section": "Using PyVista to visualize 3D geometry",
+    "text": "Using PyVista to visualize 3D geometry\n\nsource\n\nfiducials_to_mesh\n\n fiducials_to_mesh (specimen, rotation=None, translation=None,\n                    parameterization=None, convention=None, detector=None)\n\nUse camera matrices to get 2D projections of 3D fiducials for a given pose. If the detector is passed, 2D projections will be filtered for those that lie on the detector plane.\n\nsource\n\n\nlines_to_mesh\n\n lines_to_mesh (camera, fiducials_2d)\n\nDraw lines from the camera to the 2D fiducials.",
+    "crumbs": [
+      "api",
+      "visualization"
+    ]
+  },
+  {
+    "objectID": "api/ljubljana.html",
+    "href": "api/ljubljana.html",
+    "title": "Ljubljana dataset",
+    "section": "",
+    "text": "source\n\n\n\n LjubljanaDataset (view:str,\n                   filename:Union[str,pathlib._local.Path,NoneType]=None,\n                   preprocess:bool=True)\n\n*Get X-ray projections and poses from specimens in the Ljubljana dataset.\nGiven a specimen ID and projection index, returns the projection and the camera matrix for DiffDRR.*\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nview\nstr\n\n“ap” or “lat” or “ap-max” or “lat-max”\n\n\nfilename\nUnion\nNone\nPath to DeepFluoro h5 file\n\n\npreprocess\nbool\nTrue\nPreprocess X-rays\n\n\n\n\n\n\nWe sample the three rotational and three translational parameters of \\(\\mathfrak{se}(3)\\) from independent normal distributions defined with sufficient variance to capture wide perturbations from the isocenter.\n&lt;unknown&gt;:294: SyntaxWarning: invalid escape sequence '\\l'\n\nsource\n\n\n\n get_random_offset (view, batch_size:int, device)\n\n\n\n\n\nThe LjubljanaDataset class also contains a method for evaluating the registration error for a predicted pose. Digital fiducial markers were placed along the centerlines of the vessels. Projecting them with predicted pose parameters can be used to measure their distance from the true fiducials.\n\nsource\n\n\n\n Evaluator (subject, idx)\n\nInitialize self. See help(type(self)) for accurate signature.\n\n\n\n\nWe transform X-rays and DRRs before inputting them to a deep learning model by\n\nRescaling pixels to [0, 1]\nResizing the images to a specified size\nNormalizing pixels by the mean and std dev\n\n\n\nCode\nfrom tqdm import tqdm\n\nmean, vars = [], []\nfor view in [\"ap\", \"lat\"]:\n    specimen = LjubljanaDataset(view, filename=\"../../data/ljubljana.h5\")\n    for _, _, _, _, _, _, _, _, _, img, _, _ in tqdm(specimen, ncols=50):\n        img = (img - img.min()) / (img.max() - img.min())\n        mean.append(img.mean())\n        vars.append(img.var())\n\nprint(\"Pixel mean :\", sum(mean) / len(mean))\nprint(\"Pixel std dev :\", (sum(vars) / len(vars)).sqrt())\n\n\n100%|█████████████| 10/10 [00:12&lt;00:00,  1.25s/it]\n100%|█████████████| 10/10 [00:03&lt;00:00,  2.76it/s]\n\n\nPixel mean : tensor(0.0774)\nPixel std dev : tensor(0.0569)\n\n\n\n\n\n\nsource\n\n\n\n Transforms (height:int, width:int, eps:float=1e-06)\n\nTransform X-rays and DRRs before inputting to CNN.\n\n\n\n\n\nimport matplotlib.pyplot as plt\nfrom diffdrr.drr import DRR\nfrom diffdrr.visualization import plot_drr\n\n\nsubject = LjubljanaDataset(view=\"ap\", filename=\"../../data/ljubljana.h5\")\n\nfor idx in range(len(subject)):\n    (\n        volume,\n        spacing,\n        focal_len,\n        height,\n        width,\n        delx,\n        dely,\n        x0,\n        y0,\n        img,\n        pose,\n        isocenter_pose,\n    ) = subject[idx]\n    volume[volume &lt; 500] = 0.0\n    if idx == 5:\n        volume[volume &lt; 1000] = 0.0\n\n    drr = DRR(\n        volume,\n        spacing,\n        focal_len / 2,\n        height // 8,\n        delx * 8,\n        width // 8,\n        dely * 8,\n        x0,\n        y0,\n        reverse_x_axis=True,\n    ).cuda()\n    transforms = Transforms(height // 8, width // 8)\n\n    img = transforms(img).cuda()\n    pred_img = drr(None, None, None, pose=pose.cuda())\n    pred_img = transforms(pred_img)\n\n    plt.figure(figsize=(12, 3))\n    ax = plt.subplot(131)\n    plot_drr(img, axs=ax, title=\"DSA\")\n    ax = plt.subplot(132)\n    plot_drr(pred_img, axs=ax, title=\"DRR\")\n    ax = plt.subplot(133)\n    plot_drr(img - pred_img, axs=ax, title=\"Difference\", cmap=\"RdBu\")\n    plt.show()\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nsubject = LjubljanaDataset(view=\"lat\", filename=\"../../data/ljubljana.h5\")\n\nfor idx in range(len(subject)):\n    (\n        volume,\n        spacing,\n        focal_len,\n        height,\n        width,\n        delx,\n        dely,\n        x0,\n        y0,\n        img,\n        pose,\n        isocenter_pose,\n    ) = subject[idx]\n    volume[volume &lt; 500] = 0.0\n    if idx == 5:\n        volume[volume &lt; 1000] = 0.0\n\n    drr = DRR(\n        volume,\n        spacing,\n        focal_len / 2,\n        height // 8,\n        delx * 8,\n        width // 8,\n        dely * 8,\n        x0,\n        y0,\n        reverse_x_axis=True,\n    ).cuda()\n    transforms = Transforms(height // 8, width // 8)\n\n    img = transforms(img).cuda()\n    pred_img = drr(None, None, None, pose=pose.cuda())\n    pred_img = transforms(pred_img)\n\n    plt.figure(figsize=(12, 3))\n    ax = plt.subplot(131)\n    plot_drr(img, axs=ax, title=\"DSA\")\n    ax = plt.subplot(132)\n    plot_drr(pred_img, axs=ax, title=\"DRR\")\n    ax = plt.subplot(133)\n    plot_drr(img - pred_img, axs=ax, title=\"Difference\", cmap=\"RdBu\")\n    plt.show()",
+    "crumbs": [
+      "api",
+      "Ljubljana dataset"
+    ]
+  },
+  {
+    "objectID": "api/ljubljana.html#distribution-over-camera-poses",
+    "href": "api/ljubljana.html#distribution-over-camera-poses",
+    "title": "Ljubljana dataset",
+    "section": "",
+    "text": "We sample the three rotational and three translational parameters of \\(\\mathfrak{se}(3)\\) from independent normal distributions defined with sufficient variance to capture wide perturbations from the isocenter.\n&lt;unknown&gt;:294: SyntaxWarning: invalid escape sequence '\\l'\n\nsource\n\n\n\n get_random_offset (view, batch_size:int, device)",
+    "crumbs": [
+      "api",
+      "Ljubljana dataset"
+    ]
+  },
+  {
+    "objectID": "api/ljubljana.html#fiducial-markers",
+    "href": "api/ljubljana.html#fiducial-markers",
+    "title": "Ljubljana dataset",
+    "section": "",
+    "text": "The LjubljanaDataset class also contains a method for evaluating the registration error for a predicted pose. Digital fiducial markers were placed along the centerlines of the vessels. Projecting them with predicted pose parameters can be used to measure their distance from the true fiducials.\n\nsource\n\n\n\n Evaluator (subject, idx)\n\nInitialize self. See help(type(self)) for accurate signature.",
+    "crumbs": [
+      "api",
+      "Ljubljana dataset"
+    ]
+  },
+  {
+    "objectID": "api/ljubljana.html#deep-learning-transforms",
+    "href": "api/ljubljana.html#deep-learning-transforms",
+    "title": "Ljubljana dataset",
+    "section": "",
+    "text": "We transform X-rays and DRRs before inputting them to a deep learning model by\n\nRescaling pixels to [0, 1]\nResizing the images to a specified size\nNormalizing pixels by the mean and std dev\n\n\n\nCode\nfrom tqdm import tqdm\n\nmean, vars = [], []\nfor view in [\"ap\", \"lat\"]:\n    specimen = LjubljanaDataset(view, filename=\"../../data/ljubljana.h5\")\n    for _, _, _, _, _, _, _, _, _, img, _, _ in tqdm(specimen, ncols=50):\n        img = (img - img.min()) / (img.max() - img.min())\n        mean.append(img.mean())\n        vars.append(img.var())\n\nprint(\"Pixel mean :\", sum(mean) / len(mean))\nprint(\"Pixel std dev :\", (sum(vars) / len(vars)).sqrt())\n\n\n100%|█████████████| 10/10 [00:12&lt;00:00,  1.25s/it]\n100%|█████████████| 10/10 [00:03&lt;00:00,  2.76it/s]\n\n\nPixel mean : tensor(0.0774)\nPixel std dev : tensor(0.0569)\n\n\n\n\n\n\nsource\n\n\n\n Transforms (height:int, width:int, eps:float=1e-06)\n\nTransform X-rays and DRRs before inputting to CNN.",
+    "crumbs": [
+      "api",
+      "Ljubljana dataset"
+    ]
+  },
+  {
+    "objectID": "api/ljubljana.html#examples",
+    "href": "api/ljubljana.html#examples",
+    "title": "Ljubljana dataset",
+    "section": "",
+    "text": "import matplotlib.pyplot as plt\nfrom diffdrr.drr import DRR\nfrom diffdrr.visualization import plot_drr\n\n\nsubject = LjubljanaDataset(view=\"ap\", filename=\"../../data/ljubljana.h5\")\n\nfor idx in range(len(subject)):\n    (\n        volume,\n        spacing,\n        focal_len,\n        height,\n        width,\n        delx,\n        dely,\n        x0,\n        y0,\n        img,\n        pose,\n        isocenter_pose,\n    ) = subject[idx]\n    volume[volume &lt; 500] = 0.0\n    if idx == 5:\n        volume[volume &lt; 1000] = 0.0\n\n    drr = DRR(\n        volume,\n        spacing,\n        focal_len / 2,\n        height // 8,\n        delx * 8,\n        width // 8,\n        dely * 8,\n        x0,\n        y0,\n        reverse_x_axis=True,\n    ).cuda()\n    transforms = Transforms(height // 8, width // 8)\n\n    img = transforms(img).cuda()\n    pred_img = drr(None, None, None, pose=pose.cuda())\n    pred_img = transforms(pred_img)\n\n    plt.figure(figsize=(12, 3))\n    ax = plt.subplot(131)\n    plot_drr(img, axs=ax, title=\"DSA\")\n    ax = plt.subplot(132)\n    plot_drr(pred_img, axs=ax, title=\"DRR\")\n    ax = plt.subplot(133)\n    plot_drr(img - pred_img, axs=ax, title=\"Difference\", cmap=\"RdBu\")\n    plt.show()\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nsubject = LjubljanaDataset(view=\"lat\", filename=\"../../data/ljubljana.h5\")\n\nfor idx in range(len(subject)):\n    (\n        volume,\n        spacing,\n        focal_len,\n        height,\n        width,\n        delx,\n        dely,\n        x0,\n        y0,\n        img,\n        pose,\n        isocenter_pose,\n    ) = subject[idx]\n    volume[volume &lt; 500] = 0.0\n    if idx == 5:\n        volume[volume &lt; 1000] = 0.0\n\n    drr = DRR(\n        volume,\n        spacing,\n        focal_len / 2,\n        height // 8,\n        delx * 8,\n        width // 8,\n        dely * 8,\n        x0,\n        y0,\n        reverse_x_axis=True,\n    ).cuda()\n    transforms = Transforms(height // 8, width // 8)\n\n    img = transforms(img).cuda()\n    pred_img = drr(None, None, None, pose=pose.cuda())\n    pred_img = transforms(pred_img)\n\n    plt.figure(figsize=(12, 3))\n    ax = plt.subplot(131)\n    plot_drr(img, axs=ax, title=\"DSA\")\n    ax = plt.subplot(132)\n    plot_drr(pred_img, axs=ax, title=\"DRR\")\n    ax = plt.subplot(133)\n    plot_drr(img - pred_img, axs=ax, title=\"Difference\", cmap=\"RdBu\")\n    plt.show()",
+    "crumbs": [
+      "api",
+      "Ljubljana dataset"
+    ]
+  },
+  {
+    "objectID": "api/jacobians.html",
+    "href": "api/jacobians.html",
+    "title": "jacobians",
+    "section": "",
+    "text": "source\n\nJacobianDRR\n\n JacobianDRR (drr, rotation, translation, parameterization,\n              convention=None)\n\nComputes the Jacobian of a DRR wrt pose parameters.\n\nsource\n\n\ngradient_matching\n\n gradient_matching (J0, J1)\n\n\nsource\n\n\nplot_img_jacobian\n\n plot_img_jacobian (I, J, **kwargs)\n\n\nfrom diffdrr.drr import DRR\nfrom diffdrr.utils import convert\n\nfrom diffpose.deepfluoro import DeepFluoroDataset\n\ndevice = torch.device(\"cuda\")\n\nspecimen = DeepFluoroDataset(id_number=1)\nheight = 256\nsubsample = (1536 - 100) / height\ndelx = 0.194 * subsample\n\ndrr = DRR(\n    specimen.volume,\n    specimen.spacing,\n    sdr=specimen.focal_len / 2,\n    height=height,\n    delx=delx,\n    x0=specimen.x0,\n    y0=specimen.y0,\n    reverse_x_axis=True,\n).to(device)\n\n_, pose = specimen[52]\nR = convert(pose.get_rotation(), \"matrix\", \"euler_angles\", output_convention=\"ZYX\")\nR = R.to(device)\nt = pose.get_translation().to(device)\n\njacdrr = JacobianDRR(drr, R, t, \"euler_angles\", \"ZYX\")\nI0, J0 = jacdrr()\n\nkwargs = dict(cmap=\"turbo\", norm=\"symlog\")\nplot_img_jacobian(I0, J0, **kwargs)",
+    "crumbs": [
+      "api",
+      "jacobians"
+    ]
+  },
+  {
+    "objectID": "api/deepfluoro.html",
+    "href": "api/deepfluoro.html",
+    "title": "DeepFluoro dataset",
+    "section": "",
+    "text": "&lt;unknown&gt;:294: SyntaxWarning: invalid escape sequence '\\l'\n\nsource\n\n\n\n DeepFluoroDataset (id_number:int,\n                    filename:Union[str,pathlib._local.Path,NoneType]=None,\n                    preprocess:bool=True)\n\n*Get X-ray projections and poses from specimens in the DeepFluoro dataset.\nGiven a specimen ID and projection index, returns the projection and the camera matrix for DiffDRR.*\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nid_number\nint\n\nSpecimen number (1-6)\n\n\nfilename\nUnion\nNone\nPath to DeepFluoro h5 file\n\n\npreprocess\nbool\nTrue\nPreprocess X-rays\n\n\n\n\nsource\n\n\n\n\n convert_diffdrr_to_deepfluoro (specimen,\n                                pose:diffpose.calibration.RigidTransform)\n\nTransform the camera coordinate system used in DiffDRR to the convention used by DeepFluoro.\n\nsource\n\n\n\n\n convert_deepfluoro_to_diffdrr (specimen,\n                                pose:diffpose.calibration.RigidTransform)\n\nTransform the camera coordinate system used in DeepFluoro to the convention used by DiffDRR.\n\nsource\n\n\n\n\n Evaluator (specimen, idx)\n\nInitialize self. See help(type(self)) for accurate signature.\n&lt;unknown&gt;:3: SyntaxWarning: invalid escape sequence '\\l'\n\nsource\n\n\n\n\n preprocess (img, size=None, initial_energy=tensor(65487.))\n\n*Recover the line integral: \\(L[i,j] = \\log I_0 - \\log I_f[i,j]\\)\n\nRemove edge due to collimator\nSmooth the image to make less noisy\nSubtract the log initial energy for each ray\nRecover the line integral image\nRescale image to [0, 1]*\n\n\n\n\nDeepFluoroDataset is a torch.utils.data.Dataset that stores imaging data (volume, spacing, and focal_len) and provides an API for getting X-ray images and associated camera poses. The imaging data can be passed to a diffdrr.drr.DRR to render DRRs from a specific patient.\n\nimport matplotlib.pyplot as plt\nfrom diffdrr.drr import DRR\nfrom tqdm import tqdm\n\n\n\n\n\n\n\nNote\n\n\n\nX-rays in the DeepFluoro dataset are (1536, 1536) with pixel spacing of 0.194 mm. To adjust for removing the collimator (50 pixel border), 100 pixels are subtracted from the detector plane dimensions.\n\n\n\nfilename = \"../../data/ipcai_2020_full_res_data.h5\"\nspecimen = DeepFluoroDataset(1, filename=filename, preprocess=False)\ndevice = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n\nheight = 1536 - 100\ndx = 0.194\ndrr = DRR(\n    specimen.volume,\n    specimen.spacing,\n    sdr=specimen.focal_len / 2,\n    height=height,\n    delx=dx,\n    x0=specimen.x0,\n    y0=specimen.y0,\n    reverse_x_axis=True,\n    patch_size=359,\n).to(device)\n\n\n# Rotate the C-arm by the pose parameters to recover the original image\ntrue_xray, pose = specimen[0]\npred_xray = drr(None, None, None, pose=pose.to(device))\n\n::: {#cell-bone_attenuation_multiplier=1.0 .cell}\n\nCode\nplt.figure(constrained_layout=True)\nplt.subplot(121)\nplt.title(\"DRR\")\nplt.imshow(pred_xray.squeeze().cpu().numpy(), cmap=\"gray\")\nplt.subplot(122)\nplt.title(\"X-ray\")\nplt.imshow(true_xray.squeeze(), cmap=\"gray\")\nplt.show()\n\n\n\n\n\n\n\n\n:::\n\n\nThe true X-ray images need to be processed before they look like our DRRs:\n\nCrop 50 pixels off each edge to remove the effects of the collimator\nInvert the imaging equation to recover the line integral radiograph\nRescale the image to [0, 1]\n\nFrom the Beer-Lambert Law, the equation governing fluoroscopy images is \\[\\begin{equation}\n    I_f[i, j] = I_0 \\exp(-L[i, j]) \\,,\n\\end{equation}\\] where \\(L[i, j]\\) is the line integral of an X-ray through the volume. Inverting this, we recover \\[\\begin{equation}\n    L[i,j] = \\log I_0 - \\log I_f[i,j] \\,,\n\\end{equation}\\] where the constant \\(I_0\\) for each image represents the initial energy of each ray. We approximate \\(I_0 = \\max_{i,j} I_f[i,j]\\), assuming that this represents a ray that reached the detector plane without first intersecting the volume.\n\n\nCode\nspecimen = DeepFluoroDataset(\n    1,\n    filename=filename,\n    preprocess=True,  # Set as True to preprocess images\n)\nprocessed_xray, _ = specimen[0]\n\nplt.figure(constrained_layout=True)\nplt.subplot(121)\nplt.title(\"DRR\")\nplt.imshow(pred_xray.squeeze().cpu().numpy(), cmap=\"gray\")\nplt.subplot(122)\nplt.title(\"Processed X-ray\")\nplt.imshow(processed_xray.squeeze(), cmap=\"gray\")\nplt.show()\n\n\n\n\n\n\n\n\n\n\n\n\nWe can preprocess the CT by segmenting air, soft tissue, and bone before generating DRRs.\n\nUsing bone_attenuation_multiplier = 1.0 (default) sets the value of air voxels to 0\nIncreasing bone_attenuation_multiplier weights the density of bones higher than that of soft tissue (i.e., increases contrast in the DRR)\n\n\n\n\n\n\n\nNote\n\n\n\nbone_attenuation_multiplier between [1.0, 3.0] seems to work well for most images in this dataset.\n\n\n::: {#cell-bone_attenuation_multiplier = 2.5 .cell}\n\nCode\ndrr = DRR(\n    specimen.volume,\n    specimen.spacing,\n    sdr=specimen.focal_len / 2,\n    height=height,\n    delx=dx,\n    x0=specimen.x0,\n    y0=specimen.y0,\n    reverse_x_axis=True,\n    patch_size=359,\n).to(device)\n\n_, pose = specimen[0]\npred_xray = drr(\n    rotation=pose.get_rotation().to(device),\n    translation=pose.get_translation().to(device),\n    parameterization=\"matrix\",\n    bone_attenuation_multiplier=2.5,  # Set the bone attenuation multiplier\n)\n\nplt.figure(constrained_layout=True)\nplt.subplot(121)\nplt.title(\"DRR\")\nplt.imshow(pred_xray.squeeze().cpu().numpy(), cmap=\"gray\")\nplt.subplot(122)\nplt.title(\"Processed X-ray\")\nplt.imshow(processed_xray.squeeze(), cmap=\"gray\")\nplt.show()\n\n\n\n\n\n\n\n\n:::\nOur DRR generated from the ground truth C-arm pose looks remarkably similar to the real X-ray!\n\n\n\nSome X-ray images in the dataset are rotated 180 degrees. If the X-rays below are in the same orientation, this error in the dataset has been handled properly.\n\ntrue_xray, pose = specimen[34]\npred_xray = drr(\n    rotation=pose.get_rotation().to(device),\n    translation=pose.get_translation().to(device),\n    parameterization=\"matrix\",\n)\n\n\n\nCode\nplt.figure(constrained_layout=True)\nplt.subplot(121)\nplt.title(\"DRR\")\nplt.imshow(pred_xray.squeeze().cpu().numpy(), cmap=\"gray\")\nplt.subplot(122)\nplt.title(\"X-ray\")\nplt.imshow(true_xray.squeeze(), cmap=\"gray\")\nplt.show()\n\n\n\n\n\n\n\n\n\n\n\n\n\nWe sample the three rotational and three translational parameters of \\(\\mathfrak{se}(3)\\) from independent normal distributions defined with sufficient variance to capture wide perturbations from the isocenter.\n\nsource\n\n\n\n get_random_offset (batch_size:int, device)\n\n\n\n\n\nThe DeepFluoroDataset class also contains a method for evaluating the registration error for a predicted pose. Fiducial markers were digitally placed on the preoperative CT. Projecting them with predicted pose parameters can be used to measure their distance from the true fiducials.\n\nfrom diffdrr.utils import convert\n\n# Perturb the ground truth rotations by 0.05 degrees and 2 mm\nidx = 0\n_, pose = specimen[idx]\neuler_angles = (\n    convert(pose.get_rotation(), \"matrix\", \"euler_angles\", output_convention=\"ZYX\")\n    + 0.05\n)\nR = convert(euler_angles, \"euler_angles\", \"matrix\", input_convention=\"ZYX\")\nt = pose.get_translation() + 2.0\npred_pose = RigidTransform(R, t)\npred_xray = drr(\n    rotation=None,\n    translation=None,\n    parameterization=None,\n    pose=pred_pose.to(device),\n)\n\n# Get the fiducials\ntrue_fiducials, pred_fiducials = specimen.get_2d_fiducials(idx, pred_pose)\n\nevaluator = Evaluator(specimen, idx)\nregistration_error = evaluator(pred_pose).item()\nprint(f\"Registration error = {registration_error} mm\")\n\nRegistration error = 2.3423616886138916 mm\n\n\n\n\nCode\nplt.figure(constrained_layout=True)\nax = plt.subplot(121)\nplt.title(\"DRR\")\nplt.imshow(pred_xray.squeeze().cpu().numpy(), cmap=\"gray\")\nplt.scatter(\n    pred_fiducials[0, ..., 0],\n    pred_fiducials[0, ..., 1],\n    marker=\"x\",\n    c=\"tab:orange\",\n)\nplt.subplot(122, sharex=ax, sharey=ax)\nplt.title(\"Processed X-ray\")\nplt.imshow(processed_xray.squeeze(), cmap=\"gray\")\nplt.scatter(\n    true_fiducials[0, ..., 0],\n    true_fiducials[0, ..., 1],\n    label=\"True Fiducials\",\n)\nplt.scatter(\n    pred_fiducials[0, ..., 0],\n    pred_fiducials[0, ..., 1],\n    marker=\"x\",\n    c=\"tab:orange\",\n    label=\"Predicted Fiducials\",\n)\nfor idx in range(true_fiducials.shape[1]):\n    plt.plot(\n        [true_fiducials[..., idx, 0].item(), pred_fiducials[..., idx, 0].item()],\n        [true_fiducials[..., idx, 1].item(), pred_fiducials[..., idx, 1].item()],\n        \"w--\",\n    )\nplt.legend()\nplt.show()\n\n\n\n\n\n\n\n\n\n\n\n\nWe transform X-rays and DRRs before inputting them to a deep learning model by\n\nRescaling pixels to [0, 1]\nResizing the images to a specified size\nNormalizing pixels by the mean and std dev\n\n\n\nCode\nmean, vars = [], []\nfor idx in range(1, 7):\n    specimen = DeepFluoroDataset(idx, filename=filename)\n    for img, _ in tqdm(specimen, ncols=50):\n        img = (img - img.min()) / (img.max() - img.min())\n        mean.append(img.mean())\n        vars.append(img.var())\n\nprint(\"Pixel mean :\", sum(mean) / len(mean))\nprint(\"Pixel std dev :\", (sum(vars) / len(vars)).sqrt())\n\n\n100%|███████████| 111/111 [00:20&lt;00:00,  5.45it/s]\n100%|███████████| 104/104 [00:21&lt;00:00,  4.94it/s]\n100%|█████████████| 24/24 [00:04&lt;00:00,  5.45it/s]\n100%|█████████████| 48/48 [00:09&lt;00:00,  4.93it/s]\n100%|█████████████| 55/55 [00:10&lt;00:00,  5.50it/s]\n100%|█████████████| 24/24 [00:04&lt;00:00,  5.40it/s]\n\n\nPixel mean : tensor(0.3080)\nPixel std dev : tensor(0.1494)\n\n\n\n\n\n\nsource\n\n\n\n Transforms (size:int, eps:float=1e-06)\n\nTransform X-rays and DRRs before inputting to CNN.\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nsize\nint\n\nDimension to resize image\n\n\neps\nfloat\n1e-06",
+    "crumbs": [
+      "api",
+      "DeepFluoro dataset"
+    ]
+  },
+  {
+    "objectID": "api/deepfluoro.html#basic-functionalities",
+    "href": "api/deepfluoro.html#basic-functionalities",
+    "title": "DeepFluoro dataset",
+    "section": "",
+    "text": "DeepFluoroDataset is a torch.utils.data.Dataset that stores imaging data (volume, spacing, and focal_len) and provides an API for getting X-ray images and associated camera poses. The imaging data can be passed to a diffdrr.drr.DRR to render DRRs from a specific patient.\n\nimport matplotlib.pyplot as plt\nfrom diffdrr.drr import DRR\nfrom tqdm import tqdm\n\n\n\n\n\n\n\nNote\n\n\n\nX-rays in the DeepFluoro dataset are (1536, 1536) with pixel spacing of 0.194 mm. To adjust for removing the collimator (50 pixel border), 100 pixels are subtracted from the detector plane dimensions.\n\n\n\nfilename = \"../../data/ipcai_2020_full_res_data.h5\"\nspecimen = DeepFluoroDataset(1, filename=filename, preprocess=False)\ndevice = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n\nheight = 1536 - 100\ndx = 0.194\ndrr = DRR(\n    specimen.volume,\n    specimen.spacing,\n    sdr=specimen.focal_len / 2,\n    height=height,\n    delx=dx,\n    x0=specimen.x0,\n    y0=specimen.y0,\n    reverse_x_axis=True,\n    patch_size=359,\n).to(device)\n\n\n# Rotate the C-arm by the pose parameters to recover the original image\ntrue_xray, pose = specimen[0]\npred_xray = drr(None, None, None, pose=pose.to(device))\n\n::: {#cell-bone_attenuation_multiplier=1.0 .cell}\n\nCode\nplt.figure(constrained_layout=True)\nplt.subplot(121)\nplt.title(\"DRR\")\nplt.imshow(pred_xray.squeeze().cpu().numpy(), cmap=\"gray\")\nplt.subplot(122)\nplt.title(\"X-ray\")\nplt.imshow(true_xray.squeeze(), cmap=\"gray\")\nplt.show()\n\n\n\n\n\n\n\n\n:::\n\n\nThe true X-ray images need to be processed before they look like our DRRs:\n\nCrop 50 pixels off each edge to remove the effects of the collimator\nInvert the imaging equation to recover the line integral radiograph\nRescale the image to [0, 1]\n\nFrom the Beer-Lambert Law, the equation governing fluoroscopy images is \\[\\begin{equation}\n    I_f[i, j] = I_0 \\exp(-L[i, j]) \\,,\n\\end{equation}\\] where \\(L[i, j]\\) is the line integral of an X-ray through the volume. Inverting this, we recover \\[\\begin{equation}\n    L[i,j] = \\log I_0 - \\log I_f[i,j] \\,,\n\\end{equation}\\] where the constant \\(I_0\\) for each image represents the initial energy of each ray. We approximate \\(I_0 = \\max_{i,j} I_f[i,j]\\), assuming that this represents a ray that reached the detector plane without first intersecting the volume.\n\n\nCode\nspecimen = DeepFluoroDataset(\n    1,\n    filename=filename,\n    preprocess=True,  # Set as True to preprocess images\n)\nprocessed_xray, _ = specimen[0]\n\nplt.figure(constrained_layout=True)\nplt.subplot(121)\nplt.title(\"DRR\")\nplt.imshow(pred_xray.squeeze().cpu().numpy(), cmap=\"gray\")\nplt.subplot(122)\nplt.title(\"Processed X-ray\")\nplt.imshow(processed_xray.squeeze(), cmap=\"gray\")\nplt.show()\n\n\n\n\n\n\n\n\n\n\n\n\nWe can preprocess the CT by segmenting air, soft tissue, and bone before generating DRRs.\n\nUsing bone_attenuation_multiplier = 1.0 (default) sets the value of air voxels to 0\nIncreasing bone_attenuation_multiplier weights the density of bones higher than that of soft tissue (i.e., increases contrast in the DRR)\n\n\n\n\n\n\n\nNote\n\n\n\nbone_attenuation_multiplier between [1.0, 3.0] seems to work well for most images in this dataset.\n\n\n::: {#cell-bone_attenuation_multiplier = 2.5 .cell}\n\nCode\ndrr = DRR(\n    specimen.volume,\n    specimen.spacing,\n    sdr=specimen.focal_len / 2,\n    height=height,\n    delx=dx,\n    x0=specimen.x0,\n    y0=specimen.y0,\n    reverse_x_axis=True,\n    patch_size=359,\n).to(device)\n\n_, pose = specimen[0]\npred_xray = drr(\n    rotation=pose.get_rotation().to(device),\n    translation=pose.get_translation().to(device),\n    parameterization=\"matrix\",\n    bone_attenuation_multiplier=2.5,  # Set the bone attenuation multiplier\n)\n\nplt.figure(constrained_layout=True)\nplt.subplot(121)\nplt.title(\"DRR\")\nplt.imshow(pred_xray.squeeze().cpu().numpy(), cmap=\"gray\")\nplt.subplot(122)\nplt.title(\"Processed X-ray\")\nplt.imshow(processed_xray.squeeze(), cmap=\"gray\")\nplt.show()\n\n\n\n\n\n\n\n\n:::\nOur DRR generated from the ground truth C-arm pose looks remarkably similar to the real X-ray!\n\n\n\nSome X-ray images in the dataset are rotated 180 degrees. If the X-rays below are in the same orientation, this error in the dataset has been handled properly.\n\ntrue_xray, pose = specimen[34]\npred_xray = drr(\n    rotation=pose.get_rotation().to(device),\n    translation=pose.get_translation().to(device),\n    parameterization=\"matrix\",\n)\n\n\n\nCode\nplt.figure(constrained_layout=True)\nplt.subplot(121)\nplt.title(\"DRR\")\nplt.imshow(pred_xray.squeeze().cpu().numpy(), cmap=\"gray\")\nplt.subplot(122)\nplt.title(\"X-ray\")\nplt.imshow(true_xray.squeeze(), cmap=\"gray\")\nplt.show()",
+    "crumbs": [
+      "api",
+      "DeepFluoro dataset"
+    ]
+  },
+  {
+    "objectID": "api/deepfluoro.html#distribution-over-camera-poses",
+    "href": "api/deepfluoro.html#distribution-over-camera-poses",
+    "title": "DeepFluoro dataset",
+    "section": "",
+    "text": "We sample the three rotational and three translational parameters of \\(\\mathfrak{se}(3)\\) from independent normal distributions defined with sufficient variance to capture wide perturbations from the isocenter.\n\nsource\n\n\n\n get_random_offset (batch_size:int, device)",
+    "crumbs": [
+      "api",
+      "DeepFluoro dataset"
+    ]
+  },
+  {
+    "objectID": "api/deepfluoro.html#fiducial-markers",
+    "href": "api/deepfluoro.html#fiducial-markers",
+    "title": "DeepFluoro dataset",
+    "section": "",
+    "text": "The DeepFluoroDataset class also contains a method for evaluating the registration error for a predicted pose. Fiducial markers were digitally placed on the preoperative CT. Projecting them with predicted pose parameters can be used to measure their distance from the true fiducials.\n\nfrom diffdrr.utils import convert\n\n# Perturb the ground truth rotations by 0.05 degrees and 2 mm\nidx = 0\n_, pose = specimen[idx]\neuler_angles = (\n    convert(pose.get_rotation(), \"matrix\", \"euler_angles\", output_convention=\"ZYX\")\n    + 0.05\n)\nR = convert(euler_angles, \"euler_angles\", \"matrix\", input_convention=\"ZYX\")\nt = pose.get_translation() + 2.0\npred_pose = RigidTransform(R, t)\npred_xray = drr(\n    rotation=None,\n    translation=None,\n    parameterization=None,\n    pose=pred_pose.to(device),\n)\n\n# Get the fiducials\ntrue_fiducials, pred_fiducials = specimen.get_2d_fiducials(idx, pred_pose)\n\nevaluator = Evaluator(specimen, idx)\nregistration_error = evaluator(pred_pose).item()\nprint(f\"Registration error = {registration_error} mm\")\n\nRegistration error = 2.3423616886138916 mm\n\n\n\n\nCode\nplt.figure(constrained_layout=True)\nax = plt.subplot(121)\nplt.title(\"DRR\")\nplt.imshow(pred_xray.squeeze().cpu().numpy(), cmap=\"gray\")\nplt.scatter(\n    pred_fiducials[0, ..., 0],\n    pred_fiducials[0, ..., 1],\n    marker=\"x\",\n    c=\"tab:orange\",\n)\nplt.subplot(122, sharex=ax, sharey=ax)\nplt.title(\"Processed X-ray\")\nplt.imshow(processed_xray.squeeze(), cmap=\"gray\")\nplt.scatter(\n    true_fiducials[0, ..., 0],\n    true_fiducials[0, ..., 1],\n    label=\"True Fiducials\",\n)\nplt.scatter(\n    pred_fiducials[0, ..., 0],\n    pred_fiducials[0, ..., 1],\n    marker=\"x\",\n    c=\"tab:orange\",\n    label=\"Predicted Fiducials\",\n)\nfor idx in range(true_fiducials.shape[1]):\n    plt.plot(\n        [true_fiducials[..., idx, 0].item(), pred_fiducials[..., idx, 0].item()],\n        [true_fiducials[..., idx, 1].item(), pred_fiducials[..., idx, 1].item()],\n        \"w--\",\n    )\nplt.legend()\nplt.show()",
+    "crumbs": [
+      "api",
+      "DeepFluoro dataset"
+    ]
+  },
+  {
+    "objectID": "api/deepfluoro.html#deep-learning-transforms",
+    "href": "api/deepfluoro.html#deep-learning-transforms",
+    "title": "DeepFluoro dataset",
+    "section": "",
+    "text": "We transform X-rays and DRRs before inputting them to a deep learning model by\n\nRescaling pixels to [0, 1]\nResizing the images to a specified size\nNormalizing pixels by the mean and std dev\n\n\n\nCode\nmean, vars = [], []\nfor idx in range(1, 7):\n    specimen = DeepFluoroDataset(idx, filename=filename)\n    for img, _ in tqdm(specimen, ncols=50):\n        img = (img - img.min()) / (img.max() - img.min())\n        mean.append(img.mean())\n        vars.append(img.var())\n\nprint(\"Pixel mean :\", sum(mean) / len(mean))\nprint(\"Pixel std dev :\", (sum(vars) / len(vars)).sqrt())\n\n\n100%|███████████| 111/111 [00:20&lt;00:00,  5.45it/s]\n100%|███████████| 104/104 [00:21&lt;00:00,  4.94it/s]\n100%|█████████████| 24/24 [00:04&lt;00:00,  5.45it/s]\n100%|█████████████| 48/48 [00:09&lt;00:00,  4.93it/s]\n100%|█████████████| 55/55 [00:10&lt;00:00,  5.50it/s]\n100%|█████████████| 24/24 [00:04&lt;00:00,  5.40it/s]\n\n\nPixel mean : tensor(0.3080)\nPixel std dev : tensor(0.1494)\n\n\n\n\n\n\nsource\n\n\n\n Transforms (size:int, eps:float=1e-06)\n\nTransform X-rays and DRRs before inputting to CNN.\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nsize\nint\n\nDimension to resize image\n\n\neps\nfloat\n1e-06",
+    "crumbs": [
+      "api",
+      "DeepFluoro dataset"
+    ]
+  },
+  {
+    "objectID": "api/calibration.html",
+    "href": "api/calibration.html",
+    "title": "calibration",
+    "section": "",
+    "text": "An X-ray C-arm can be modeled as a pinhole camera with its own extrinsic and intrinsic matrices. This module provides utilities for parsing these matrices and working with rigid transforms.",
+    "crumbs": [
+      "api",
+      "calibration"
+    ]
+  },
+  {
+    "objectID": "api/calibration.html#rigid-transformations",
+    "href": "api/calibration.html#rigid-transformations",
+    "title": "calibration",
+    "section": "Rigid transformations",
+    "text": "Rigid transformations\nWe represent rigid transforms as \\(4 \\times 4\\) matrices (following the right-handed convention of PyTorch3D),\n\\[\\begin{equation}\n\\begin{bmatrix}\n    \\mathbf R^T & \\mathbf 0 \\\\\n    \\mathbf t^T & 1\n\\end{bmatrix}\n\\in \\mathbf{SE}(3) \\,,\n\\end{equation}\\]\nwhere \\(\\mathbf R \\in \\mathbf{SO}(3)\\) is a rotation matrix and \\(\\mathbf t\\in \\mathbb R^3\\) represents a translation.\nNote that since rotation matrices are orthogonal, we have a simple closed-form equation for the inverse: \\[\\begin{equation}\n\\begin{bmatrix}\n    \\mathbf R^T & \\mathbf 0 \\\\\n    \\mathbf t^T & 1\n\\end{bmatrix}^{-1} =\n\\begin{bmatrix}\n    \\mathbf R & \\mathbf 0 \\\\\n    -\\mathbf R \\mathbf t & 1\n\\end{bmatrix} \\,.\n\\end{equation}\\]\nFor convenience, we add a wrapper of pytorch3d.transforms.Transform3d that can be construced from a (batched) rotation matrix and translation vector. This module also includes the closed-form inverse specific to rigid transforms.\n\nsource\n\nRigidTransform\n\n RigidTransform (R:jaxtyping.Float[Tensor,'...'],\n                 t:jaxtyping.Float[Tensor,'...3'],\n                 parameterization:str='matrix',\n                 convention:Optional[str]=None, device=None,\n                 dtype=torch.float32)\n\nWrapper of pytorch3d.transforms.Transform3d with extra functionalities.\n\nsource\n\n\nconvert\n\n convert (transform, input_parameterization, output_parameterization,\n          input_convention=None, output_convention=None)\n\nConvert between representations of SE(3).",
+    "crumbs": [
+      "api",
+      "calibration"
+    ]
+  },
+  {
+    "objectID": "api/calibration.html#computing-a-perspective-projection",
+    "href": "api/calibration.html#computing-a-perspective-projection",
+    "title": "calibration",
+    "section": "Computing a perspective projection",
+    "text": "Computing a perspective projection\nGiven an extrinsic and intrinsic camera matrix, we can compute the perspective projection of a batch of points. This is used for computing where fiducials in world coordinates get mapped onto the image plane.\n\nsource\n\nperspective_projection\n\n perspective_projection (extrinsic:__main__.RigidTransform,\n                         intrinsic:jaxtyping.Float[Tensor,'33'],\n                         x:jaxtyping.Float[Tensor,'bn3'])\n\n\n\n\n\n\n\n\n\n\nType\nDetails\n\n\n\n\nextrinsic\nRigidTransform\nExtrinsic camera matrix (world to camera)\n\n\nintrinsic\nFloat[Tensor, ‘3 3’]\nIntrinsic camera matrix (camera to image)\n\n\nx\nFloat[Tensor, ‘b n 3’]\nWorld coordinates\n\n\nReturns\nFloat[Tensor, ‘b n 2’]",
+    "crumbs": [
+      "api",
+      "calibration"
+    ]
+  },
+  {
+    "objectID": "api/metrics.html",
+    "href": "api/metrics.html",
+    "title": "metrics",
+    "section": "",
+    "text": "Used to quantify the similarity between ground truth X-rays (\\(\\mathbf I\\)) and synthetic X-rays generated from estimated camera poses (\\(\\hat{\\mathbf I}\\)). If a metric is differentiable, it can be used to optimize camera poses with DiffDRR.\nNCC and GradNCC are originally implemented in diffdrr.metrics. DiffPose provides torchmetrics wrappers for these functions.\n\nsource\n\n\n\n GradientNormalizedCrossCorrelation (patch_size=None)\n\ntorchmetric wrapper for GradNCC.\n\nsource\n\n\n\n\n MultiscaleNormalizedCrossCorrelation (patch_sizes, patch_weights)\n\ntorchmetric wrapper for Multiscale NCC.\n\nsource\n\n\n\n\n NormalizedCrossCorrelation (patch_size=None)\n\ntorchmetric wrapper for NCC.",
+    "crumbs": [
+      "api",
+      "metrics"
+    ]
+  },
+  {
+    "objectID": "api/metrics.html#image-similarity-metrics",
+    "href": "api/metrics.html#image-similarity-metrics",
+    "title": "metrics",
+    "section": "",
+    "text": "Used to quantify the similarity between ground truth X-rays (\\(\\mathbf I\\)) and synthetic X-rays generated from estimated camera poses (\\(\\hat{\\mathbf I}\\)). If a metric is differentiable, it can be used to optimize camera poses with DiffDRR.\nNCC and GradNCC are originally implemented in diffdrr.metrics. DiffPose provides torchmetrics wrappers for these functions.\n\nsource\n\n\n\n GradientNormalizedCrossCorrelation (patch_size=None)\n\ntorchmetric wrapper for GradNCC.\n\nsource\n\n\n\n\n MultiscaleNormalizedCrossCorrelation (patch_sizes, patch_weights)\n\ntorchmetric wrapper for Multiscale NCC.\n\nsource\n\n\n\n\n NormalizedCrossCorrelation (patch_size=None)\n\ntorchmetric wrapper for NCC.",
+    "crumbs": [
+      "api",
+      "metrics"
+    ]
+  },
+  {
+    "objectID": "api/metrics.html#geodesic-distances-for-so3-and-se3",
+    "href": "api/metrics.html#geodesic-distances-for-so3-and-se3",
+    "title": "metrics",
+    "section": "Geodesic distances for SO(3) and SE(3)",
+    "text": "Geodesic distances for SO(3) and SE(3)\nOne can define geodesic pseudo-distances on SO(3) and SE(3).1 This let’s us measure registration error (in radians and millimeters, respectively) on poses, rather than needed to compute the projection of fiducials.\n\nFor SO(3), the geodesic distance between two rotation matrices \\(\\mathbf R_A\\) and \\(\\mathbf R_B\\) is \\[\\begin{equation}\n  d_\\theta(\\mathbf R_A, \\mathbf R_B; r) = r \\left| \\arccos \\left( \\frac{\\mathrm{trace}(\\mathbf R_A^* \\mathbf R_B) - 1}{2} \\right ) \\right| \\,,\n\\end{equation}\\] where \\(r\\), the source-to-detector radius, is used to convert radians to millimeters.\nFor SE(3), we decompose the transformation matrix into a rotation and a translation, i.e., \\(\\mathbf T = (\\mathbf R, \\mathbf t)\\). Then, we compute the geodesic on translations (just Euclidean distance), \\[\\begin{equation}\n  d_t(\\mathbf t_A, \\mathbf t_B) = \\| \\mathbf t_A - \\mathbf t_B \\|_2 \\,.\n\\end{equation}\\] Finally, we compute the double geodesic on the rotations and translations: \\[\\begin{equation}\n  d(\\mathbf T_A, \\mathbf T_B) = \\sqrt{d_\\theta(\\mathbf R_A, \\mathbf R_B)^2 + d_t(\\mathbf t_A, \\mathbf t_B)^2} \\,.\n\\end{equation}\\]\n\n\nsource\n\nGeodesicTranslation\n\n GeodesicTranslation ()\n\nCalculate the angular distance between two rotations in SO(3).\n\nsource\n\n\nGeodesicSO3\n\n GeodesicSO3 ()\n\nCalculate the angular distance between two rotations in SO(3).\n\nsource\n\n\nGeodesicSE3\n\n GeodesicSE3 ()\n\nCalculate the distance between transforms in the log-space of SE(3).\n\nsource\n\n\nDoubleGeodesic\n\n DoubleGeodesic (sdr:float, eps:float=0.0001)\n\nCalculate the angular and translational geodesics between two SE(3) transformation matrices.\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nsdr\nfloat\n\nSource-to-detector radius\n\n\neps\nfloat\n0.0001\nAvoid overflows in sqrt\n\n\n\n\n# SO(3) distance\ngeodesic_so3 = GeodesicSO3()\n\npose_1 = RigidTransform(\n    torch.tensor([[0.1, 1.0, torch.pi]]),\n    torch.ones(1, 3),\n    parameterization=\"euler_angles\",\n    convention=\"ZYX\",\n)\npose_2 = RigidTransform(\n    torch.tensor([[0.1, 1.0, torch.pi]]),\n    torch.ones(1, 3),\n    parameterization=\"euler_angles\",\n    convention=\"ZYX\",\n)\n\nprint(geodesic_so3(pose_1, pose_2))  # Angular distance in radians\n\npose_1 = RigidTransform(\n    torch.tensor([[0.1, 1.0, torch.pi]]),\n    torch.ones(1, 3),\n    parameterization=\"euler_angles\",\n    convention=\"ZYX\",\n)\npose_2 = RigidTransform(\n    torch.tensor([[0.1, 1.1, torch.pi]]),\n    torch.ones(1, 3),\n    parameterization=\"euler_angles\",\n    convention=\"ZYX\",\n)\n\nprint(geodesic_so3(pose_1, pose_2))  # Angular distance in radians\n\ntensor([0.])\ntensor([0.1000])\n\n\n\n# SE(3) distance\ngeodesic_se3 = GeodesicSE3()\n\npose_1 = RigidTransform(\n    torch.tensor([[0.1, 1.0, torch.pi]]),\n    torch.ones(1, 3),\n    parameterization=\"euler_angles\",\n    convention=\"ZYX\",\n)\npose_2 = RigidTransform(\n    torch.tensor([[0.1, 1.1, torch.pi]]),\n    torch.zeros(1, 3),\n    parameterization=\"euler_angles\",\n    convention=\"ZYX\",\n)\n\ngeodesic_se3(pose_1, pose_2)\n\ntensor([1.7355])\n\n\n\n# Angular distance and translational distance both in mm\ndouble_geodesic = DoubleGeodesic(1020 / 2)\n\npose_1 = RigidTransform(\n    torch.tensor([[0.1, 1.0, torch.pi]]),\n    torch.ones(1, 3),\n    parameterization=\"euler_angles\",\n    convention=\"ZYX\",\n)\npose_2 = RigidTransform(\n    torch.tensor([[0.1, 1.1, torch.pi]]),\n    torch.zeros(1, 3),\n    parameterization=\"euler_angles\",\n    convention=\"ZYX\",\n)\n\ndouble_geodesic(pose_1, pose_2)\n\n(tensor([51.0000]), tensor([1.7321]), tensor([51.0294]))",
+    "crumbs": [
+      "api",
+      "metrics"
+    ]
+  },
+  {
+    "objectID": "api/metrics.html#footnotes",
+    "href": "api/metrics.html#footnotes",
+    "title": "metrics",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\nhttps://vnav.mit.edu/material/04-05-LieGroups-notes.pdf↩︎",
+    "crumbs": [
+      "api",
+      "metrics"
+    ]
+  },
+  {
+    "objectID": "api/registration.html",
+    "href": "api/registration.html",
+    "title": "registration",
+    "section": "",
+    "text": "We perform patient-specific X-ray to CT registration by pre-training an encoder/decoder architecture. The encoder, PoseRegressor, is comprised of two networks:\n\nA pretrained backbone (i.e., convolutional or transformer network) that extracts features from an input X-ray image.\nA set of two linear layers that decodes these features into camera pose parameters (a rotation and a translation).\n\nThe decoder is DiffDRR, which renders a simulated X-ray from the predicted pose parameters. Because DiffDRR is autodifferentiable, a loss metric on the simulated X-ray and the input X-ray can be backpropogated to the encoder.\n\nsource\n\n\n\n PoseRegressor (model_name, parameterization, convention=None,\n                pretrained=False, **kwargs)\n\nA PoseRegressor is comprised of a pretrained backbone model that extracts features from an input X-ray and two linear layers that decode these features into rotational and translational camera pose parameters, respectively.\n\n\n\nWe sample random camera poses from the tangent space of SE(3), which is Euclidean.\n\n\nCode\nimport matplotlib.pyplot as plt\nfrom diffdrr.drr import DRR\nfrom torchvision.utils import make_grid\n\nfrom diffpose.deepfluoro import DeepFluoroDataset, get_random_poses\n\nspecimen = DeepFluoroDataset(1)\ndevice = torch.device(\"cuda\")\n\ndrr = DRR(\n    specimen.volume,\n    specimen.spacing,\n    sdr=specimen.focal_len / 2,\n    height=(1536 - 100) // 16,\n    delx=0.194 * 16,\n    x0=specimen.x0,\n    y0=specimen.y0,\n    reverse_x_axis=True,\n).to(dtype=torch.float32, device=device)\n\nisocenter_pose = specimen.isocenter_pose.to(device)\noffset = get_random_offset(batch_size=36, device=device)\npose = isocenter_pose.compose(offset)\n\nwith torch.no_grad():\n    img = drr(None, None, None, pose=pose, bone_attenuation_multiplier=2.5)\n    img = (img - img.min()) / (img.max() - img.min())\n\nplt.figure(dpi=300)\nplt.imshow(make_grid(img.cpu(), nrow=6)[0], cmap=\"gray\")\nplt.axis(\"off\")\nplt.show()\n\n\n\n\n\nDRRs from randomly sampled camera poses\n\n\n\n\n\n# Rotation matrices are valid (det R = 1)\nR = pose.get_matrix()[..., :3, :3].transpose(-1, -2)\nR.det()\n\ntensor([1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,\n        1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,\n        1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,\n        1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000],\n       device='cuda:0')",
+    "crumbs": [
+      "api",
+      "registration"
+    ]
+  },
+  {
+    "objectID": "api/registration.html#training",
+    "href": "api/registration.html#training",
+    "title": "registration",
+    "section": "",
+    "text": "We perform patient-specific X-ray to CT registration by pre-training an encoder/decoder architecture. The encoder, PoseRegressor, is comprised of two networks:\n\nA pretrained backbone (i.e., convolutional or transformer network) that extracts features from an input X-ray image.\nA set of two linear layers that decodes these features into camera pose parameters (a rotation and a translation).\n\nThe decoder is DiffDRR, which renders a simulated X-ray from the predicted pose parameters. Because DiffDRR is autodifferentiable, a loss metric on the simulated X-ray and the input X-ray can be backpropogated to the encoder.\n\nsource\n\n\n\n PoseRegressor (model_name, parameterization, convention=None,\n                pretrained=False, **kwargs)\n\nA PoseRegressor is comprised of a pretrained backbone model that extracts features from an input X-ray and two linear layers that decode these features into rotational and translational camera pose parameters, respectively.\n\n\n\nWe sample random camera poses from the tangent space of SE(3), which is Euclidean.\n\n\nCode\nimport matplotlib.pyplot as plt\nfrom diffdrr.drr import DRR\nfrom torchvision.utils import make_grid\n\nfrom diffpose.deepfluoro import DeepFluoroDataset, get_random_poses\n\nspecimen = DeepFluoroDataset(1)\ndevice = torch.device(\"cuda\")\n\ndrr = DRR(\n    specimen.volume,\n    specimen.spacing,\n    sdr=specimen.focal_len / 2,\n    height=(1536 - 100) // 16,\n    delx=0.194 * 16,\n    x0=specimen.x0,\n    y0=specimen.y0,\n    reverse_x_axis=True,\n).to(dtype=torch.float32, device=device)\n\nisocenter_pose = specimen.isocenter_pose.to(device)\noffset = get_random_offset(batch_size=36, device=device)\npose = isocenter_pose.compose(offset)\n\nwith torch.no_grad():\n    img = drr(None, None, None, pose=pose, bone_attenuation_multiplier=2.5)\n    img = (img - img.min()) / (img.max() - img.min())\n\nplt.figure(dpi=300)\nplt.imshow(make_grid(img.cpu(), nrow=6)[0], cmap=\"gray\")\nplt.axis(\"off\")\nplt.show()\n\n\n\n\n\nDRRs from randomly sampled camera poses\n\n\n\n\n\n# Rotation matrices are valid (det R = 1)\nR = pose.get_matrix()[..., :3, :3].transpose(-1, -2)\nR.det()\n\ntensor([1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,\n        1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,\n        1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,\n        1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000],\n       device='cuda:0')",
+    "crumbs": [
+      "api",
+      "registration"
+    ]
+  },
+  {
+    "objectID": "api/registration.html#test-time-optimization",
+    "href": "api/registration.html#test-time-optimization",
+    "title": "registration",
+    "section": "Test-time optimization",
+    "text": "Test-time optimization\n\nSparse rendering\n\nsource\n\n\nSparseRegistration\n\n SparseRegistration (drr:diffdrr.drr.DRR,\n                     pose:diffpose.calibration.RigidTransform,\n                     parameterization:str, convention:str=None,\n                     features=None, n_patches:int=None, patch_size:int=13)\n\n*Base class for all neural network modules.\nYour models should also subclass this class.\nModules can also contain other Modules, allowing them to be nested in a tree structure. You can assign the submodules as regular attributes::\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nclass Model(nn.Module):\n    def __init__(self) -&gt; None:\n        super().__init__()\n        self.conv1 = nn.Conv2d(1, 20, 5)\n        self.conv2 = nn.Conv2d(20, 20, 5)\n\n    def forward(self, x):\n        x = F.relu(self.conv1(x))\n        return F.relu(self.conv2(x))\nSubmodules assigned in this way will be registered, and will also have their parameters converted when you call :meth:to, etc.\n.. note:: As per the example above, an __init__() call to the parent class must be made before assignment on the child.\n\nivar training: Boolean represents whether this module is in training or evaluation mode. :vartype training: bool*\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\ndrr\nDRR\n\n\n\n\npose\nRigidTransform\n\n\n\n\nparameterization\nstr\n\n\n\n\nconvention\nstr\nNone\n\n\n\nfeatures\nNoneType\nNone\nUsed to compute biased estimate of mNCC\n\n\nn_patches\nint\nNone\nIf n_patches is None, render the whole image\n\n\npatch_size\nint\n13\n\n\n\n\n\n\nVectorized multiscale NCC\nFor computing multiscale NCC on sparse renderings.\n\nsource\n\n\nVectorizedNormalizedCrossCorrelation2d\n\n VectorizedNormalizedCrossCorrelation2d (eps=0.0001)\n\n*Base class for all neural network modules.\nYour models should also subclass this class.\nModules can also contain other Modules, allowing them to be nested in a tree structure. You can assign the submodules as regular attributes::\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nclass Model(nn.Module):\n    def __init__(self) -&gt; None:\n        super().__init__()\n        self.conv1 = nn.Conv2d(1, 20, 5)\n        self.conv2 = nn.Conv2d(20, 20, 5)\n\n    def forward(self, x):\n        x = F.relu(self.conv1(x))\n        return F.relu(self.conv2(x))\nSubmodules assigned in this way will be registered, and will also have their parameters converted when you call :meth:to, etc.\n.. note:: As per the example above, an __init__() call to the parent class must be made before assignment on the child.\n:ivar training: Boolean represents whether this module is in training or evaluation mode. :vartype training: bool*",
+    "crumbs": [
+      "api",
+      "registration"
+    ]
+  },
+  {
+    "objectID": "experiments/pose_recovery.html",
+    "href": "experiments/pose_recovery.html",
+    "title": "Pose conversion and overlays",
+    "section": "",
+    "text": "import matplotlib.pyplot as plt\nimport numpy as np\nimport torch\nfrom diffdrr.drr import DRR\nfrom pytorch3d.transforms import standardize_quaternion\nfrom tqdm import tqdm\n\nfrom diffpose.deepfluoro import DeepFluoroDataset, Transforms\nfrom diffpose.visualization import overlay_edges\ndevice = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\nclass Simulator(torch.nn.Module):\n    def __init__(self, id_number, bone_attenuation_multiplier=None):\n        super().__init__()\n        self.specimen = DeepFluoroDataset(id_number)\n        self.drr = self.setup_diffdrr(self.specimen, bone_attenuation_multiplier)\n        self.transforms = Transforms(size=self.drr.detector.height)\n\n    def __len__(self):\n        return len(self.specimen)\n\n    def setup_diffdrr(self, specimen, bone_attenuation_multiplier):\n        subsample = 4\n        height = (1536 - 100) // subsample\n        dx = 0.194 * subsample\n        sdr = specimen.focal_len / 2\n        return DRR(\n            specimen.volume,\n            specimen.spacing,\n            sdr=sdr,\n            height=height,\n            delx=dx,\n            x0=specimen.x0,\n            y0=specimen.y0,\n            reverse_x_axis=True,\n            bone_attenuation_multiplier=bone_attenuation_multiplier,\n        ).to(device)\n\n    def forward(self, idx, sigma):\n        true_xray, pose = self.specimen[idx]\n        pred_xray = self.drr(None, None, None, pose=pose.to(device))\n        true_xray = self.transforms(true_xray)\n        pred_xray = self.transforms(pred_xray)\n        return overlay_edges(true_xray, pred_xray, sigma)",
+    "crumbs": [
+      "experiments",
+      "Pose conversion and overlays"
+    ]
+  },
+  {
+    "objectID": "experiments/pose_recovery.html#visualize-camera-poses",
+    "href": "experiments/pose_recovery.html#visualize-camera-poses",
+    "title": "Pose conversion and overlays",
+    "section": "Visualize camera poses",
+    "text": "Visualize camera poses\nParameterizing rotations as quaternions provides the smoothest representations of camera poses, however distributions are very different across subjects.\n\nimport pandas as pd\nimport seaborn as sns\n\nfrom diffdrr.utils import convert\n\n\ndef read_params(specimen_id):\n    simulator = Simulator(specimen_id)\n    parameters = []\n    for _, pose in tqdm(simulator.specimen, ncols=75):\n        rotation = convert(pose.get_rotation(), \"matrix\", \"quaternion\")\n        rotation = standardize_quaternion(rotation)\n        translation = pose.get_translation()\n        parameters.append(rotation.flatten().tolist() + translation.flatten().tolist())\n    df = pd.DataFrame(parameters, columns=[\"qr\", \"qi\", \"qj\", \"qk\", \"bx\", \"by\", \"bz\"])\n    df[\"specimen_id\"] = f\"{specimen_id}\"\n    return df\n\n\ndfs = [read_params(idx) for idx in range(1, 7)]\ndf = pd.concat(dfs).reset_index(drop=True)\ndf.head()\n\n100%|████████████████████████████████████| 111/111 [00:12&lt;00:00,  9.08it/s]\n100%|████████████████████████████████████| 104/104 [00:11&lt;00:00,  9.23it/s]\n100%|██████████████████████████████████████| 24/24 [00:02&lt;00:00,  8.68it/s]\n100%|██████████████████████████████████████| 48/48 [00:05&lt;00:00,  9.31it/s]\n100%|██████████████████████████████████████| 55/55 [00:06&lt;00:00,  9.07it/s]\n100%|██████████████████████████████████████| 24/24 [00:02&lt;00:00,  9.65it/s]\n\n\n\n\n\n\n\n\n\nqr\nqi\nqj\nqk\nbx\nby\nbz\nspecimen_id\n\n\n\n\n0\n0.526532\n-0.472271\n-0.490813\n0.508750\n191.273315\n332.638611\n165.694885\n1\n\n\n1\n0.525989\n-0.471070\n-0.491968\n0.509309\n190.584625\n380.110413\n167.100708\n1\n\n\n2\n0.636865\n-0.588132\n-0.336718\n0.367593\n228.617737\n285.662231\n159.831787\n1\n\n\n3\n0.664899\n-0.590688\n-0.292922\n0.350989\n268.551392\n319.972107\n103.838623\n1\n\n\n4\n0.636763\n-0.588241\n-0.336784\n0.367535\n225.662567\n287.129517\n127.286865\n1\n\n\n\n\n\n\n\n\nsns.pairplot(df, hue=\"specimen_id\", height=2.0)\nplt.show()",
+    "crumbs": [
+      "experiments",
+      "Pose conversion and overlays"
+    ]
+  },
+  {
+    "objectID": "experiments/pose_recovery.html#logmap",
+    "href": "experiments/pose_recovery.html#logmap",
+    "title": "Pose conversion and overlays",
+    "section": "Logmap",
+    "text": "Logmap\nWe can also visualize the camera poses in the tangent plane to SE(3). We specifically visualize offsets from the specimen’s isocenter.\n\ndfs = []\nfor id_number in range(1, 7):\n    specimen = DeepFluoroDataset(id_number)\n    logs = []\n    for _, pose in tqdm(specimen, ncols=75):\n        offset = specimen.isocenter_pose.inverse().compose(pose)\n        logs.append(offset.get_se3_log().squeeze().tolist())\n    df = pd.DataFrame(logs, columns=[\"r1\", \"r2\", \"r3\", \"t1\", \"t2\", \"t3\"])\n    df[\"specimen\"] = id_number\n    dfs.append(df)\n\ndf = pd.concat(dfs)\ndf[\"specimen\"] = df[\"specimen\"].astype(\"category\")\ndf.head()\n\n100%|████████████████████████████████████| 111/111 [00:12&lt;00:00,  9.05it/s]\n100%|████████████████████████████████████| 104/104 [00:11&lt;00:00,  9.20it/s]\n100%|██████████████████████████████████████| 24/24 [00:02&lt;00:00,  9.40it/s]\n100%|██████████████████████████████████████| 48/48 [00:05&lt;00:00,  9.32it/s]\n100%|██████████████████████████████████████| 55/55 [00:05&lt;00:00,  9.22it/s]\n100%|██████████████████████████████████████| 24/24 [00:02&lt;00:00,  9.74it/s]\n\n\n\n\n\n\n\n\n\nr1\nr2\nr3\nt1\nt2\nt3\nspecimen\n\n\n\n\n0\n0.036333\n0.072215\n0.000760\n-19.647938\n240.070465\n1.458560\n1\n\n\n1\n0.037587\n0.072278\n0.004219\n-19.539360\n287.097900\n1.694475\n1\n\n\n2\n0.018072\n0.080559\n-0.526908\n-85.570374\n298.490448\n2.401929\n1\n\n\n3\n0.016420\n0.134538\n-0.622133\n-81.341881\n362.447906\n-40.157444\n1\n\n\n4\n0.017985\n0.080220\n-0.526906\n-87.454056\n298.952148\n-30.311920\n1\n\n\n\n\n\n\n\n\nsns.pairplot(df, hue=\"specimen\", height=2.0)\nplt.show()\n\n\n\n\n\n\n\n\n\ndf.describe()\n\n\n\n\n\n\n\n\nr1\nr2\nr3\nt1\nt2\nt3\n\n\n\n\ncount\n366.000000\n366.000000\n366.000000\n366.000000\n366.000000\n366.000000\n\n\nmean\n0.042246\n-0.010383\n0.021493\n8.183658\n241.613094\n6.928242\n\n\nstd\n0.109843\n0.105303\n0.236635\n60.339255\n79.636910\n34.754194\n\n\nmin\n-0.216699\n-0.228263\n-0.622133\n-117.581871\n6.971102\n-134.236725\n\n\n25%\n-0.011940\n-0.086218\n-0.076451\n-41.221780\n169.136051\n-20.429067\n\n\n50%\n0.023854\n-0.001267\n0.005391\n7.023252\n251.910316\n4.422227\n\n\n75%\n0.060591\n0.072262\n0.134018\n58.992722\n297.788193\n34.407932\n\n\nmax\n0.634592\n0.206258\n0.711423\n163.980026\n482.579834\n95.244934",
+    "crumbs": [
+      "experiments",
+      "Pose conversion and overlays"
+    ]
+  },
+  {
+    "objectID": "experiments/pose_recovery.html#plot-x-rays-and-drrs-from-the-computed-pose",
+    "href": "experiments/pose_recovery.html#plot-x-rays-and-drrs-from-the-computed-pose",
+    "title": "Pose conversion and overlays",
+    "section": "Plot X-rays and DRRs from the computed pose",
+    "text": "Plot X-rays and DRRs from the computed pose\n\nfrom torchvision.utils import make_grid\n\n\nSpecimen 1\n\nsimulator = Simulator(1, bone_attenuation_multiplier=2.0)\nedges = [simulator(idx, sigma=1.0) for idx in tqdm(range(len(simulator)), ncols=75)]\n\nplt.figure(dpi=300)\nplt.imshow(make_grid(torch.stack(edges).permute(0, -1, 1, 2)).permute(1, 2, 0))\nplt.axis(\"off\")\nplt.show()\n\n100%|████████████████████████████████████| 111/111 [01:05&lt;00:00,  1.68it/s]\n\n\n\n\n\n\n\n\n\n\n\nSpecimen 2\n\nsimulator = Simulator(2, bone_attenuation_multiplier=2.0)\nedges = [simulator(idx, sigma=1.0) for idx in tqdm(range(len(simulator)), ncols=75)]\n\nplt.figure(dpi=300)\nplt.imshow(make_grid(torch.stack(edges).permute(0, -1, 1, 2)).permute(1, 2, 0))\nplt.axis(\"off\")\nplt.show()\n\n100%|████████████████████████████████████| 104/104 [01:00&lt;00:00,  1.73it/s]\n\n\n\n\n\n\n\n\n\n\n\nSpecimen 3\n\nsimulator = Simulator(3, bone_attenuation_multiplier=3.0)\nedges = [simulator(idx, sigma=1.0) for idx in tqdm(range(len(simulator)), ncols=75)]\n\nplt.figure(dpi=300)\nplt.imshow(make_grid(torch.stack(edges).permute(0, -1, 1, 2)).permute(1, 2, 0))\nplt.axis(\"off\")\nplt.show()\n\n100%|██████████████████████████████████████| 24/24 [00:14&lt;00:00,  1.63it/s]\n\n\n\n\n\n\n\n\n\n\n\nSpecimen 4\n\nsimulator = Simulator(4, bone_attenuation_multiplier=2.0)\nedges = [simulator(idx, sigma=1.0) for idx in tqdm(range(len(simulator)), ncols=75)]\n\nplt.figure(dpi=300)\nplt.imshow(make_grid(torch.stack(edges).permute(0, -1, 1, 2)).permute(1, 2, 0))\nplt.axis(\"off\")\nplt.show()\n\n100%|██████████████████████████████████████| 48/48 [00:29&lt;00:00,  1.64it/s]\n\n\n\n\n\n\n\n\n\n\n\nSpecimen 5\n\nsimulator = Simulator(5, bone_attenuation_multiplier=2.0)\nedges = [simulator(idx, sigma=1.0) for idx in tqdm(range(len(simulator)), ncols=75)]\n\nplt.figure(dpi=300)\nplt.imshow(make_grid(torch.stack(edges).permute(0, -1, 1, 2)).permute(1, 2, 0))\nplt.axis(\"off\")\nplt.show()\n\n100%|██████████████████████████████████████| 55/55 [00:32&lt;00:00,  1.67it/s]\n\n\n\n\n\n\n\n\n\n\n\nSpecimen 6\n\nsimulator = Simulator(6, bone_attenuation_multiplier=2.0)\nedges = [simulator(idx, sigma=1.0) for idx in tqdm(range(len(simulator)), ncols=75)]\n\nplt.figure(dpi=300)\nplt.imshow(make_grid(torch.stack(edges).permute(0, -1, 1, 2)).permute(1, 2, 0))\nplt.axis(\"off\")\nplt.show()\n\n100%|██████████████████████████████████████| 24/24 [00:14&lt;00:00,  1.68it/s]",
+    "crumbs": [
+      "experiments",
+      "Pose conversion and overlays"
+    ]
+  },
+  {
+    "objectID": "experiments/3d_visualization.html",
+    "href": "experiments/3d_visualization.html",
+    "title": "3D camera pose geometry",
+    "section": "",
+    "text": "Note\n\n\n\n3D plotting in Jupyter can be annoying to set up, not to mention getting it to work on a remote server. Be sure to follow all instructions in the PyVista documentation to resolve common bugs.\nimport pyvista\nimport torch\nfrom diffdrr.drr import DRR\nfrom diffdrr.visualization import drr_to_mesh, img_to_mesh\n\nfrom diffpose.deepfluoro import DeepFluoroDataset\nfrom diffpose.visualization import fiducials_to_mesh, lines_to_mesh\npyvista.set_jupyter_backend(\"trame\")\ndevice = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n# Initialize DiffDRR for Patient 1\nSUBSAMPLE = 6.410714285714286\nspecimen = DeepFluoroDataset(id_number=1)\nheight = int((1536 - 100) / SUBSAMPLE)\ndelx = 0.194 * SUBSAMPLE\n\ndrr = DRR(\n    specimen.volume,\n    specimen.spacing,\n    sdr=specimen.focal_len / 2,\n    height=height,\n    delx=delx,\n    x0=specimen.x0,\n    y0=specimen.y0,\n    reverse_x_axis=True,\n    bone_attenuation_multiplier=2.5,\n).to(device)\n_, pose = specimen[69]\nrotations = pose.get_rotation().to(device)\ntranslations = pose.get_translation().to(device)\n# Extract a mesh from the CT\nct = drr_to_mesh(drr, method=\"surface_nets\", threshold=145, verbose=True)\n\n# Make meshes for the camera and detector plane and\n# convert the DRR into a texture for the detector plane\ncamera, detector, texture, principal_ray = img_to_mesh(\n    drr, rotations, translations, \"matrix\"\n)\n\n# Compute the locations of 3D fiducials and projected 2D fiducials\nfiducials_3d, fiducials_2d = fiducials_to_mesh(\n    specimen,\n    rotations,\n    translations,\n    detector=detector,\n    parameterization=\"matrix\",\n)\n\n# Draw lines from the camera to the 2D fiducials\nlines = lines_to_mesh(camera, fiducials_2d)\n\nPerforming Labeled Surface Extraction: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████[00:01&lt;00:00]\nFinding and Labeling Connected Regions.: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████[00:00&lt;00:00]\nSmoothing Mesh using Taubin Smoothing: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████[00:04&lt;00:00]\nFilling Holes: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████[00:00&lt;00:00]\nCleaning: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████[00:00&lt;00:00]",
+    "crumbs": [
+      "experiments",
+      "3D camera pose geometry"
+    ]
+  },
+  {
+    "objectID": "experiments/3d_visualization.html#rendering-a-single-x-ray-in-an-interactive-window",
+    "href": "experiments/3d_visualization.html#rendering-a-single-x-ray-in-an-interactive-window",
+    "title": "3D camera pose geometry",
+    "section": "Rendering a single X-ray in an interactive window",
+    "text": "Rendering a single X-ray in an interactive window\nExporting a notebook to HTML does not also automatically catch the PyVista plots, so the interactive plot has been manually saved to HTML and loaded.\n\nplotter = pyvista.Plotter()\nplotter.add_mesh(ct)\nplotter.add_mesh(camera, show_edges=True)\nplotter.add_mesh(detector, texture=texture)\nplotter.add_mesh(principal_ray, color=\"red\")\nplotter.add_mesh(\n    fiducials_3d,\n    color=\"blueviolet\",\n    point_size=7.5,\n    render_points_as_spheres=True,\n)\nplotter.add_mesh(\n    fiducials_2d,\n    color=\"lime\",\n    point_size=5,\n    render_points_as_spheres=True,\n)\nfor line in lines:\n    plotter.add_mesh(line, color=\"lime\")\n\nplotter.add_axes()\nplotter.add_bounding_box()\n\n# plotter.show()  # If running Jupyter locally\n# plotter.show(jupyter_backend=\"server\")  # If running Jupyter remotely\nplotter.export_html(\"render.html\")\n\n\nfrom IPython.display import IFrame\n\nIFrame(\"render.html\", height=500, width=749)",
+    "crumbs": [
+      "experiments",
+      "3D camera pose geometry"
+    ]
+  },
+  {
+    "objectID": "experiments/3d_visualization.html#rendering-multiple-x-rays-in-a-static-window",
+    "href": "experiments/3d_visualization.html#rendering-multiple-x-rays-in-a-static-window",
+    "title": "3D camera pose geometry",
+    "section": "Rendering multiple X-rays in a static window",
+    "text": "Rendering multiple X-rays in a static window\n\n# Initialize the plot with the CT and 3D fiducials (shared across all plots)\nplotter = pyvista.Plotter()\nplotter.add_mesh(ct)\nplotter.add_mesh(\n    fiducials_3d,\n    color=\"blueviolet\",\n    point_size=7.5,\n    render_points_as_spheres=True,\n)\n\n# Render a subset of the X-rays\nfor idx, color in zip([0, 2, 69, 100], [\"#1b9e77\", \"#d95f02\", \"#7570b3\", \"#e7298a\"]):\n    _, pose = specimen[idx]\n    rotations = pose.get_rotation().to(device)\n    translations = pose.get_translation().to(device)\n\n    camera, detector, texture, _ = img_to_mesh(\n        drr, rotations, translations, parameterization=\"matrix\"\n    )\n    _, fiducials_2d = fiducials_to_mesh(\n        specimen, rotations, translations, detector=detector, parameterization=\"matrix\"\n    )\n    lines = lines_to_mesh(camera, fiducials_2d)\n\n    plotter.add_mesh(camera, show_edges=True, line_width=3)\n    plotter.add_mesh(detector, texture=texture)\n    plotter.add_mesh(\n        fiducials_2d,\n        color=color,\n        point_size=5,\n        render_points_as_spheres=True,\n    )\n    for line in lines:\n        plotter.add_mesh(line, color=color)\n\nplotter.add_axes()\nplotter.add_bounding_box()\nplotter.show(jupyter_backend=\"static\")",
+    "crumbs": [
+      "experiments",
+      "3D camera pose geometry"
+    ]
+  }
+]
